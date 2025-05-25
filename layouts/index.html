@@ -1,0 +1,104 @@
+{{ define "title" }}{{ .Site.Title }}{{ end }} {{ define "main" }}
+<table style="width:100%;max-width:800px;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+  <tr style="padding:0px">
+    <td style="padding:0px">
+      <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+        <tr style="padding:0px">
+          <td style="padding:2.5%;width:63%;vertical-align:middle">
+            <p class="name" style="text-align: center;">
+              Shu Pu
+            </p>
+            <p>I'm an undergraduate student at HuaZhong University of Science and Technology(HUST) in WuHan.
+              I am currently a research intern, supervised by <a href="https://www.cs.princeton.edu/~zhuangl/">Zhuang Liu</a>
+              . I'm interested in Physical Perception, 3D AIGC and Computer Graphics. Some particular directions like Generative Simulation/Game Engine, 3D Scene Understanding and Unified-models are included.
+            </p>
+
+            <p style="text-align:center">
+              <a href="mailto:dashi.shu.pu@gmail.com">Email</a> &nbsp;/&nbsp;
+              <a href="{{ "data/Shu_Pu_CV.pdf" | relURL }}">CV</a> &nbsp;/&nbsp;
+              <a href="{{ "data/ShuPu-bio.txt" | relURL }}">Bio</a> &nbsp;/&nbsp;
+              <a href="https://scholar.google.com/citations?user=1tybQSwAAAAJ&hl=zh-CN">Scholar</a> &nbsp;/&nbsp;
+              <a href="https://github.com/URRealHero">Github</a> &nbsp;/&nbsp;
+              <a href="{{ "data/Transcripts.pdf" | relURL }}">Transcript</a>
+              &nbsp;/&nbsp; <a href="{{ "/blog/" | relURL }}">Blog</a> </p>
+          </td>
+          <td style="padding:2.5%;width:40%;max-width:40%">
+            <a href="{{ "images/PuShu.jpeg" | relURL }}"><img style="width:100%;max-width:100%;object-fit: cover; border-radius: 50%;" alt="profile photo" src="{{ "images/PuShu.jpeg" | relURL }}" class="hoverZoomLink"></a>
+          </td>
+        </tr>
+      </tbody></table>
+      <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <tr>
+          <td style="padding:20px;width:100%;vertical-align:middle">
+            <h2>Research</h2>
+            <p>
+              I'm interested in Physical World Understanding and Generation, 3D vision and computer graphics.
+            </p>
+          </td>
+        </tr>
+      </tbody></table>
+
+      <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+        <tr>
+          <td style="padding:16px;width:20%;vertical-align:middle">
+            <div class="one">
+              <img src="{{ "images/JudgeAnything.jpg" | relURL }}" width="100%">
+            </div>
+          </td>
+          <td style="padding:8px;width:80%;vertical-align:middle">
+            <a href="https://urrealhero.github.io/judgeanythingweb/">
+              <span class="papertitle">Judge Anything: MLLM as a Judge Across Any Modality</span> <br>
+              🎉🎉🎉 <span style="color: #FF4500; font-weight: bold;">Accepted by ACM KDD 25' DB Track Oral!</span>
+            </a>
+            <br>
+            <strong>Shu Pu</strong>, Yaochen Wang, Dongping Chen, Zhiyuan Zhang*, Zetong Zhou*, Shuang Gong*, Yuhang Chen*, Qi Qin*, Zhongyi Zhang*, Guohao Wang*, Yi Gui, Yao Wan, Philip S. Yu
+            <br>
+            <em>Arxiv</em>, 2025
+            <br>
+            <a href="https://arxiv.org/abs/2503.17489">ArXiv</a> /
+            <a href="https://github.com/URRealHero/JudgeAnything">GitHub</a> 
+            <p>
+              A system analysis for utilizing MLLM as a judge across any modality and an Omni-Modality competitive arena.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;width:20%;vertical-align:middle">
+            <div class="one">
+              <img src="{{ "images/ISGBench.png" | relURL }}" width="100%">
+            </div>
+          </td>
+          <td style="padding:8px;width:80%;vertical-align:middle">
+            <a href="https://arxiv.org/abs/2411.17188">
+              <span class="papertitle">ISGBench: Interleaved Scene Graph for Interleaved Text-and-Image Generation Assessment</span> <br>
+              🎉🎉🎉 <span style="color: #FF4500; font-weight: bold;">Accepted by ICLR 25' Spotlight!</span>
+          </a>
+            <br>
+            Dongping Chen*, Ruoxi Chen*, <strong>Shu Pu</strong>*, Zhaoyi Liu*, Yanru Wu*, Caixi Chen*, Benlin Liu, Yue Huang, Yao Wan, Pan Zhou, Ranjay Krishna
+            <br>
+            <em>ICLR</em>, 2025
+            <br>
+            <a href="https://arxiv.org/pdf/2411.17188.pdf">pdf</a> /
+            <a href="https://arxiv.org/abs/2411.17188">arXiv</a> /
+            <a href="https://github.com/Dongping-Chen/ISG?tab=readme-ov-file">GitHub</a>
+            <p></p>
+            <p>
+              A comprehensive evaluation framework for interleaved text-and-image generation.
+            </p>
+          </td>
+        </tr>
+      </tbody></table>
+      <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+        <tr>
+          <td style="padding:0px">
+            <br>
+            <p style="text-align:right;font-size:small;">
+              Thanks to this Jon Barron's <a href="https://github.com/jonbarron/jonbarron_website">website template</a> to create such a clean and neat personal website. The source code is open-source. <strong>Do not</strong> scrape the HTML from this page itself, as it includes analytics tags that you do not want on your own website &mdash; use the github code instead. Also, consider using <a href="https://leonidk.com/">Leonid Keselman</a>'s <a href="https://github.com/leonidk/new_website">Jekyll fork</a> of this page.
+            </p>
+          </td>
+        </tr>
+      </tbody></table>
+    </td>
+  </tr>
+</table>
+{{ end }}

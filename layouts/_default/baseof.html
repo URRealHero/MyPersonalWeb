@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{ block "title" . }}{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}{{ end }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{{ "images/favicon/favicon.ico" | relURL }}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{{ "css/stylesheet.css" | relURL }}">
+
+    {{/* This is where KaTeX or MathJax partial is included if the condition is met */}}
+    {{ if or .Params.mathjax .Site.Params.enablemathJax (eq .Section "blog") }}
+      {{ partial "mathjax.html" . }} {{/* Or mathjax.html if you switched */}}
+    {{ end }}
+
+    {{ block "head_extra" . }}{{ end }} {{/* For any page-specific extra head content */}}
+  </head>
+  <body class="{{ block "body_class" . }}{{ end }}">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="{{ "/" | relURL }}" class="nav-home-link">Home</a>
+          <a href="{{ "/blog/" | relURL }}" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> {{/* Renamed from just "container" for clarity */}}
+      {{ block "main" . }}
+        {{ end }}
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; {{ now.Format "2006" }} {{ .Site.Title | default "Your Name" }}. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {{ block "footer_extra" . }}{{ end }} {{/* For any page-specific scripts at the end of body */}}
+  </body>
+</html>

@@ -1,0 +1,13 @@
+baseURL = 'https://urrealhero.github.io/'
+languageCode = 'en-us'
+title = 'Shu Pu Website'
+
+disableKinds = ['taxonomy', 'term'] # You can adjust later if you need taxonomies like tags/categories
+[params]
+  enableKatex = true # Uncomment if you want KaTeX on all pages by default
+
+
+[markup.tableOfContents]
+  startLevel = 2 # Minimum heading level to include (e.g., H2)
+  endLevel   = 4 # Maximum heading level to include (e.g., H4)
+  ordered    = false # false for <ul>, true for <ol>

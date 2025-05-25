@@ -1,0 +1,35 @@
+{{ define "body_class" }}blog-list-page-background{{ end }}
+
+{{ define "main" }}
+  <header class="page-header">
+    <h1>{{ .Title }}</h1> 
+  </header>
+
+  <div class="featured-blogs-grid">
+    {{ range .Pages.ByDate.Reverse }}
+      {{ $currentPage := . }} {{/* Assign the current page in the loop to $currentPage */}}
+      <article class="blog-card">
+        {{/* Image link */}}
+        {{ with $currentPage.Params.image }} {{/* Use $currentPage here */}}
+          <a href="{{ $currentPage.Permalink }}" class="blog-card-image-link"> {{/* Use $currentPage.Permalink */}}
+            <img src="{{ . | relURL }}" alt="Thumbnail for {{ $currentPage.Title }}" class="blog-card-image"> {{/* Image src is still '.', alt uses $currentPage.Title */}}
+          </a>
+        {{ end }}
+
+        <div class="blog-card-content">
+          {{/* Title link */}}
+          <h2 class="blog-card-title"><a href="{{ $currentPage.Permalink }}">{{ $currentPage.Title }}</a></h2> {{/* Use $currentPage for both */}}
+          {{ if not $currentPage.Date.IsZero }}
+            <p class="blog-card-meta">
+              Posted: <time datetime="{{ $currentPage.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $currentPage.Date.Format "Jan 2, 2006" }}</time>
+            </p>
+          {{ end }}
+          <p class="blog-card-summary">{{ $currentPage.Summary }}</p>
+        </div>
+
+        {{/* Overlay link */}}
+        <a href="{{ $currentPage.Permalink }}" class="card-link-overlay" aria-label="Read more about {{ $currentPage.Title }}"></a> {{/* Use $currentPage for both */}}
+      </article>
+    {{ end }}
+  </div>
+{{ end }}

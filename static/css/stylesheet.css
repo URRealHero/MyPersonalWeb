@@ -1,0 +1,358 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v15/S6u8w4BMUTPHjxsAUi-qNiXg7eU0.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v15/S6u8w4BMUTPHjxsAXC-qNiXg7Q.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v15/S6u_w4BMUTPHjxsI5wq_FQftx9897sxZ.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v15/S6u_w4BMUTPHjxsI5wq_Gwftx9897g.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v15/S6uyw4BMUTPHjxAwXiWtFCfQ7A.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v15/S6uyw4BMUTPHjx4wXiWtFCc.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v15/S6u9w4BMUTPHh6UVSwaPGQ3q5d0N7w.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v15/S6u9w4BMUTPHh6UVSwiPGQ3q5d0.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+a {
+  color: #1772d0;
+  text-decoration: none;
+}
+
+a:focus,
+a:hover {
+  color: #f09228;
+  text-decoration: none;
+}
+
+body,
+td,
+th,
+tr,
+p,
+a {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+strong {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+h2 {
+  margin: 0;
+  font-weight: normal;
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 22px;
+}
+
+.papertitle {
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.name {
+  padding-top: 20px;
+  margin: 0;
+  font-family: 'Lato', Verdana, Helvetica, sans-serif;
+  font-size: 32px;
+}
+
+.one {
+  width: 160px;
+  height: 160px;
+  position: relative;
+}
+
+.two {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  transition: opacity .2s ease-in-out;
+  -moz-transition: opacity .2s ease-in-out;
+  -webkit-transition: opacity .2s ease-in-out;
+}
+
+.fade {
+  transition: opacity .2s ease-in-out;
+  -moz-transition: opacity .2s ease-in-out;
+  -webkit-transition: opacity .2s ease-in-out;
+}
+
+span.highlight {
+  background-color: #ffffd0;
+}
+
+
+/*  Featured Blogs and Slides Styles
+  ---------------------------------
+  These styles are for the featured blogs and slides section.
+*/
+
+.page-header {
+  text-align: center; /* As in the example image */
+  margin-bottom: 30px; /* Space below "Featured Blogs and Slides" title */
+  /* Add styling for the "FEATURED" text if you want that subheading effect */
+}
+
+.page-header h1 {
+  font-size: 2em; /* Adjust as needed */
+  text-transform: uppercase; /* As in the example */
+  color: #333;
+  /* Add any other styling for the main "BLOGS AND SLIDES" title */
+}
+
+
+.featured-blogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+  gap: 25px; /* Space between cards */
+  padding: 10px; /* Optional padding around the grid */
+}
+
+.blog-card {
+  position: relative; /* Crucial for positioning the overlay link */
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Ensure existing links within the card can still be interacted with if needed, 
+   by making sure they are "above" the overlay. */
+.blog-card-image-link {
+  display: block; /* Add this line */
+  position: relative; 
+  z-index: 2; 
+}
+
+/* If you had a combined rule, split it or ensure .blog-card-image-link gets display:block */
+.blog-card-title a {
+  position: relative; 
+  z-index: 2; 
+}
+
+.card-link-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Lower than explicit links within the card, but covers the rest */
+  /* Optional: For debugging, give it a semi-transparent background to see it
+  /* background-color: rgba(0, 255, 0, 0.1); */
+}
+
+.blog-card-image {
+  width: 100%;
+  height: 200px; /* Fixed height for uniform card look, adjust as needed */
+  object-fit: cover; /* Covers the area, might crop */
+  display: block; /* Remove any extra space below image */
+}
+
+.blog-card-content {
+  padding: 15px;
+  flex-grow: 1; /* Allows content to fill space if cards have different heights due to text */
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card-title {
+  font-size: 1.25em;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.blog-card-title a {
+  text-decoration: none;
+  color: #222; /* Darker color for title */
+}
+
+.blog-card-title a:hover {
+  color: #007bff; /* Example hover color */
+}
+
+.blog-card-meta {
+  font-size: 0.85em;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.blog-card-summary {
+  font-size: 0.95em;
+  color: #444;
+  line-height: 1.5;
+  flex-grow: 1; /* Pushes meta to bottom if card content is primary flex child */
+  margin-bottom: 0; /* Remove default paragraph margin if it's the last item visually */
+}
+
+/*
+  Single Post Styles
+  ------------------
+  These styles are for the single post view.
+*/
+.single-post {
+  max-width: 800px; /* Or your preferred content width */
+  margin: 20px auto; /* Center it */
+  padding: 20px;
+  background-color: #fff; /* If your body has a different bg */
+}
+
+.single-post-header {
+  text-align: center; /* Or left, as you prefer */
+  margin-bottom: 30px;
+}
+
+.single-post-title {
+  font-size: 2.5em; /* Example */
+  margin-bottom: 10px;
+}
+
+.single-post-meta {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.single-post-banner img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.table-of-contents {
+  background-color: #f8f8f8;
+  border: 1px solid #eee;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+.table-of-contents ul {
+  padding-left: 20px;
+  list-style-type: circle;
+}
+
+
+.single-post-content {
+  line-height: 1.7; /* For readability */
+  font-size: 1.1em; /* Adjust as needed */
+}
+
+.single-post-content h2 { margin-top: 30px; } /* Example spacing for headings */
+.single-post-content h3 { margin-top: 25px; }
+
+.single-post-footer {
+  margin-top: 40px;
+  text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+/* Home button feature */
+
+.site-header {
+  background-color: #f8f8f8;
+  padding: 1em 0;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.nav-container, .footer-container, .main-content-container {
+  max-width: 1000px; /* Or your preferred site width */
+  margin: 0 auto; /* Centers the container */
+  padding: 0 15px; /* Some padding on the sides */
+}
+
+.main-nav {
+  text-align: center; /* Or left/right */
+}
+
+.main-nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  font-weight: bold;
+  color: #337ab7;
+}
+
+.main-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Ensure main content has some space from header/footer */
+.main-content-container {
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 2em 0;
+  margin-top: 30px;
+  border-top: 1px solid #e7e7e7;
+  font-size: 0.9em;
+  color: #777;
+}
+
+
+/* List Bg */
+
+body.blog-list-page-background { /* Add the class here */
+  background-image: url('/images/blog_bg.jpg'); /* Make sure this path is correct */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+}
