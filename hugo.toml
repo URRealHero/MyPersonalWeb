@@ -1,4 +1,5 @@
 baseURL = 'https://urrealhero.github.io/MyPersonalWeb/'
+canonifyURLs = true
 languageCode = 'en-us'
 title = 'Shu Pu Website'
 
