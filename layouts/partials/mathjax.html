@@ -3,12 +3,36 @@
     tex: {
       inlineMath: [['$', '$'], ['\\(', '\\)']],
       displayMath: [['$$', '$$'], ['\\[', '\\]']],
-      procesEscapes: true,
-      processEnvironments: true
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
     },
+
+    // Options for processing HTML content
     options: {
-      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' // Recommended for web fonts
+    },
+
+    // MathJax startup configuration
+    startup: {
+      // This function runs when MathJax is ready to start processing the page
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
     }
   };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+{{/*
+  Load the MathJax 3 library from a CDN.
+  'tex-mml-chtml.js' is a common component that includes TeX input, MathML input, and CommonHTML output.
+  The 'async' attribute allows the page to continue loading while the script is fetched.
+*/}}
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
