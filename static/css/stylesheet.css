@@ -89,12 +89,6 @@ strong {
   font-size: 20px;
 }
 
-h2 {
-  margin: 0;
-  font-weight: normal;
-  font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 22px;
-}
 
 .papertitle {
   font-family: 'Lato', Verdana, Helvetica, sans-serif;
@@ -292,7 +286,7 @@ span.highlight {
   font-size: 1.1em; /* Adjust as needed */
 }
 
-.single-post-content h2 { margin-top: 30px; } /* Example spacing for headings */
+.single-post-content h2 { margin-top: 30px; }
 .single-post-content h3 { margin-top: 25px; }
 
 .single-post-footer {
@@ -355,4 +349,30 @@ body.blog-list-page-background { /* Add the class here */
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: fixed;
+}
+
+/* For a specific image class */
+.blog-post-image {
+  max-width: 100%; /*Makes it responsive*/
+  width: auto;    /* Set your desired maximum width */
+  height: auto;    /* Maintain aspect ratio */
+  display: block;  /* Allows for centering with margin */
+  margin: 15px auto; /* Adds some space around and centers it */
+}
+
+/* If you wrapped a Markdown image in a div */
+.image-container-small img { /* Target the img tag inside the div */
+  max-width: 100%;
+  width: 400px;    /* A smaller width example */
+  height: auto;
+  display: block;
+  margin: 10px auto;
+}
+
+/* General rule for all images within your post content (use with care) */
+.single-post-content img {
+  max-width: 100%; /* Good default for all content images */
+  height: auto;
+  display: block; /* Optional: for consistent block behavior and margin use */
+  margin-bottom: 1em; /* Optional: space after images */
 }
