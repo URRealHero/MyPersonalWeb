@@ -1,5 +1,5 @@
 +++
 title = "Notes about recent unified models"
-summary = "Just paper reading! Nothing else"
-image = "/images/blogs/UnifiedHistory.png"
+summary = "Cool paper reading!"
+image = "/images/blogs/UnifiedModels/UnifiedHistory.png"
 +++

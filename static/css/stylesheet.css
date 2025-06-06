@@ -371,8 +371,16 @@ body.blog-list-page-background { /* Add the class here */
 
 /* General rule for all images within your post content (use with care) */
 .single-post-content img {
-  max-width: 100%; /* Good default for all content images */
-  height: auto;
-  display: block; /* Optional: for consistent block behavior and margin use */
-  margin-bottom: 1em; /* Optional: space after images */
+  /* --- Properties for Centering --- */
+  display: block;         /* Treat the image as a block to apply auto margins */
+  margin-left: auto;      /* Automatically calculate the left margin */
+  margin-right: auto;     /* Automatically calculate the right margin */
+
+  /* --- Properties for Responsiveness & Sizing --- */
+  max-width: 100%;        /* Ensures the image is never wider than the content area */
+  height: auto;           /* Maintains the correct aspect ratio */
+
+  /* --- Optional Properties for Spacing --- */
+  margin-top: 1.5em;      /* Adds some space above the image */
+  margin-bottom: 1.5em;   /* Adds some space below the image */
 }
