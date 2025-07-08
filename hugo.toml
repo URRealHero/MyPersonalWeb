@@ -3,12 +3,39 @@ canonifyURLs = true
 languageCode = 'en-us'
 title = 'Shu Pu Website'
 
-disableKinds = ['taxonomy', 'term'] # You can adjust later if you need taxonomies like tags/categories
+disableKinds = ['taxonomy', 'term']
+
 [params]
-  enableKatex = true # Uncomment if you want KaTeX on all pages by default
+  math = true 
 
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allows all raw HTML
 
-[markup.tableOfContents]
-  startLevel = 2 # Minimum heading level to include (e.g., H2)
-  endLevel   = 4 # Maximum heading level to include (e.g., H4)
-  ordered    = false # false for <ul>, true for <ol>
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          # These blocks will be passed through Markdown untouched
+          block = [
+            ['$$', '$$'],             # For $$...$$ display math
+            ['\\[', '\\]'],           # For \[...\] display math
+            ['\\begin{equation}', '\\end{equation}'],
+            ['\\begin{align}', '\\end{align}'],
+            ['\\begin{gather}', '\\end{gather}']
+          ]
+          # These inline blocks will be passed through
+          inline = [
+            ['$', '$'],              # For $...$ inline math (use with caution due to $ in normal text)
+            ['\\(', '\\)']            # For \(...\) inline math (safer)
+          ]
+
+  [markup.tableOfContents] # This is a direct child of [markup], not [markup.goldmark]
+    startLevel = 2
+    endLevel   = 4
+    ordered    = false
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"

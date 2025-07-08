@@ -1,35 +1,73 @@
-{{ define "body_class" }}blog-list-page-background{{ end }}
+{{/* layouts/_default/list.html */}}
+
+{{ define "body_class" }}
+  {{ if .IsHome }}home-page
+  {{ else if and (eq .Kind "section") (gt (len .Sections) 0) }}blog-category-list
+  {{ else }}blog-post-list
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <header class="page-header">
-    <h1>{{ .Title }}</h1> 
+    <h1>{{ .Title }}</h1>
   </header>
 
-  <div class="featured-blogs-grid">
-    {{ range .Pages.ByDate.Reverse }}
-      {{ $currentPage := . }} {{/* Assign the current page in the loop to $currentPage */}}
-      <article class="blog-card">
-        {{/* Image link */}}
-        {{ with $currentPage.Params.image }} {{/* Use $currentPage here */}}
-          <a href="{{ $currentPage.Permalink }}" class="blog-card-image-link"> {{/* Use $currentPage.Permalink */}}
-            <img src="{{ . | relURL }}" alt="Thumbnail for {{ $currentPage.Title }}" class="blog-card-image"> {{/* Image src is still '.', alt uses $currentPage.Title */}}
-          </a>
+  {{ $isTopLevelBlogWithSubsections := and (eq .Section "blog") (eq .Kind "section") (gt (len .Sections) 0) }}
+
+  {{ if $isTopLevelBlogWithSubsections }}
+    {{/* --- Displaying list of CATEGORIES (sub-sections) --- */}}
+    <div class="category-listing">
+      <div class="featured-blogs-grid">
+        {{ range .Sections.ByTitle }} 
+          {{ $section := . }} {{/* Assign the current section page object to $section */}}
+          <article class="blog-card category-card">
+            {{ with $section.Params.image }} {{/* Use $section.Params.image */}}
+              <a href="{{ $section.Permalink }}" class="blog-card-image-link"> {{/* Use $section.Permalink */}}
+                <img src="{{ . | relURL }}" alt="Thumbnail for {{ $section.Title }}" class="blog-card-image"> {{/* . is the image path, $section.Title for alt */}}
+              </a>
+            {{ end }}
+            <div class="blog-card-content">
+              <h2 class="blog-card-title"><a href="{{ $section.Permalink }}">{{ $section.Title }}</a></h2>
+              {{ with $section.Params.summary }}
+                <p class="blog-card-summary">{{ . }}</p>
+              {{ else }}
+                <p class="blog-card-summary">{{ len $section.Pages }} post{{ if ne (len $section.Pages) 1 }}s{{ end }}</p>
+              {{ end }}
+            </div>
+            <a href="{{ $section.Permalink }}" class="card-link-overlay" aria-label="View posts in {{ $section.Title }}"></a>
+          </article>
         {{ end }}
+      </div>
+    </div>
 
-        <div class="blog-card-content">
-          {{/* Title link */}}
-          <h2 class="blog-card-title"><a href="{{ $currentPage.Permalink }}">{{ $currentPage.Title }}</a></h2> {{/* Use $currentPage for both */}}
-          {{ if not $currentPage.Date.IsZero }}
-            <p class="blog-card-meta">
-              Posted: <time datetime="{{ $currentPage.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $currentPage.Date.Format "Jan 2, 2006" }}</time>
-            </p>
+  {{ else if or (eq .Kind "section") (eq .Kind "taxonomy") }}
+    {{/* --- Displaying list of POSTS --- */}}
+    <div class="featured-blogs-grid">
+      {{ $paginator := .Paginate .Pages.ByDate.Reverse }}
+      {{ range $paginator.Pages }}
+        {{ $currentPage := . }}
+        <article class="blog-card">
+          {{ with $currentPage.Params.image }}
+            <a href="{{ $currentPage.Permalink }}" class="blog-card-image-link">
+              <img src="{{ . | relURL }}" alt="Thumbnail for {{ $currentPage.Title }}" class="blog-card-image">
+            </a>
           {{ end }}
-          <p class="blog-card-summary">{{ $currentPage.Summary }}</p>
-        </div>
+          <div class="blog-card-content">
+            <h2 class="blog-card-title"><a href="{{ $currentPage.Permalink }}">{{ $currentPage.Title }}</a></h2>
+            {{ if not $currentPage.Date.IsZero }}
+              <p class="blog-card-meta">
+                Posted: <time datetime="{{ $currentPage.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $currentPage.Date.Format "Jan 2, 2006" }}</time>
+              </p>
+            {{ end }}
+            <p class="blog-card-summary">{{ $currentPage.Summary }}</p>
+          </div>
+          <a href="{{ $currentPage.Permalink }}" class="card-link-overlay" aria-label="Read more about {{ $currentPage.Title }}"></a>
+        </article>
+      {{ end }}
+    </div>
+    {{ partial "pagination.html" . }}
+  {{ else }}
+    <p>No items to display on this page.</p>
+  {{ end }}
 
-        {{/* Overlay link */}}
-        <a href="{{ $currentPage.Permalink }}" class="card-link-overlay" aria-label="Read more about {{ $currentPage.Title }}"></a> {{/* Use $currentPage for both */}}
-      </article>
-    {{ end }}
-  </div>
 {{ end }}

@@ -7,9 +7,8 @@
     <link rel="shortcut icon" href="{{ "images/favicon/favicon.ico" | relURL }}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{ "css/stylesheet.css" | relURL }}">
 
-    {{/* This is where KaTeX or MathJax partial is included if the condition is met */}}
-    {{ if or .Params.mathjax .Site.Params.enablemathJax (eq .Section "blog") }}
-      {{ partial "mathjax.html" . }} {{/* Or mathjax.html if you switched */}}
+    {{ if or .Params.math .Site.Params.math (eq .Section "blog") }}
+    {{ partial "mathjax.html" . }}
     {{ end }}
 
     {{ block "head_extra" . }}{{ end }} {{/* For any page-specific extra head content */}}
