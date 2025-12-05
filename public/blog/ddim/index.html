@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head><script src="/MyPersonalWeb/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=MyPersonalWeb/livereload" data-no-instant defer></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Diffusion-Series 1 - DDIM Making Diffusion not Diffusioning | Shu Pu Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="http://localhost:1313/MyPersonalWeb/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="http://localhost:1313/MyPersonalWeb/css/stylesheet.css">
+
+    
+    <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
+    },
+
+    
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' 
+    },
+
+    
+    startup: {
+      
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
+</script>
+
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+
+     
+  </head>
+  <body class="">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="http://localhost:1313/MyPersonalWeb/" class="nav-home-link">Home</a>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> 
+      
+  <article class="single-post">
+    <header class="single-post-header">
+      <h1 class="single-post-title">Diffusion-Series 1 - DDIM Making Diffusion not Diffusioning</h1>
+      
+        <p class="single-post-meta">
+          Published on <time datetime="2025-06-03T18:04:52&#43;08:00">June 3, 2025</time>
+          </p>
+      
+    </header>
+
+     <div class="single-post-banner">
+            <img src="http://localhost:1313/MyPersonalWeb/images/blogs/DDIM.png" alt="Diffusion-Series 1 - DDIM Making Diffusion not Diffusioning">
+        </div>
+    
+
+    
+      <aside class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#kl-divergence">KL Divergence</a></li>
+    <li><a href="#ddpm-denoising-diffusion-probabilistic-models">DDPM: Denoising Diffusion Probabilistic Models</a>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#formula">Formula</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#how-to-make-ddpm-non-markov">How to make DDPM non-Markov?</a></li>
+    <li><a href="#deduction">Deduction</a></li>
+  </ul>
+</nav>
+      </aside>
+    
+
+    <div class="single-post-content">
+      <h1 id="background">Background</h1>
+<h2 id="kl-divergence">KL Divergence</h2>
+<blockquote>
+<p>KL divergence is a measure of how one probability distribution p is different from a second, reference probability distribution q. It is often denoted as $D(p||q)$</p></blockquote>
+<p>\begin{equation}
+D_{KL}(p||q) = \sum_{x\in X}p(x)log(\frac{p(x)}{q(x)})
+\end{equation}</p>
+<h2 id="ddpm-denoising-diffusion-probabilistic-models">DDPM: Denoising Diffusion Probabilistic Models</h2>
+<blockquote>
+<p>The goal of DDPM is to construct a model to generate by denoising.</p></blockquote>
+<h3 id="features">Features</h3>
+<ol>
+<li>Markov Chain</li>
+</ol>
+<p>\begin{equation}
+p(x_t|x_{t-1},x_0) = p(x_t|x_{t-1})
+\end{equation}</p>
+<ol start="2">
+<li>
+<p>Gaussian re-parameterization
+\begin{align}
+p(x_t|x_{t-1}) \sim \mathcal{N}(x_t; \sqrt{\alpha_t}x_{t-1}, (1-\alpha_t)\mathbf{I}) \\
+p(x_t|x_0) \sim \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1-\bar{\alpha}_t)\mathbf{I}) \\
+p(x_t|x_0) = \sqrt{\bar{\alpha}_t}x_0 + \sqrt{1-\bar{\alpha}_t}\epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0,\mathbf{I})
+\end{align}
+Formula (5) is called <em>re-parameterization</em>, which is a key to make the model trainable.</p>
+ <div style="background-color: lightyellow; padding: 10px;">
+     To be notice, in DDIM, we use $\sqrt{\alpha_t}$ instead of $\sqrt{\bar{\alpha}_t}$, which is different from the original DDPM.
+ </div>
+</li>
+<li>
+<p>Loss Function
+Goal: $\min L = -\log p_{\theta}(x_0)$</p>
+<p>The main loss function is:</p>
+<p>\begin{equation}
+L_{\gamma} = \sum_{t=1}^{T}\mathbb{E}_{q(x_0),\epsilon_t\sim\mathcal{N}(0,\mathbf{I})}\left[ \gamma \left\| \epsilon_t - \epsilon_{\theta}\left(\sqrt{\alpha_t}x_0 + \sqrt{1-\alpha_t},\epsilon_t&rsquo; \right) \right\|^2_2 \right]
+\end{equation}</p>
+</li>
+</ol>
+<p>Here, we directly give the formula, the derivation will be explained in appendix. Notably, the loss function is only related to $q(x_t|x_0)$</p>
+<h3 id="formula">Formula</h3>
+<p>Q: What are we doing? <br>
+A: Train a network to predict $x_{t-1}$ base on $x_t$, i.e. $q(x_{t-1}|x_t)$ <br>
+How? <strong>Bayesian</strong>. Since we know every time step&rsquo;s $q(x_t|x_0)$ by <em>re-parameterization</em>, we can get following formula:</p>
+<p>\begin{equation}
+q(x_{t-1}|x_t,x_0) = \frac{q(x_t|x_{t-1})q(x_{t-1}|x_0)}{q(x_t|x_0)}
+\end{equation}</p>
+<p>Specifically, formula (2) is derived from the <em>Markov Property</em></p>
+<p>Q: Why DDPM is slow? <br>
+A: <em>Markov Property</em>. Although it offers DDPM great generative ability, it also makes the sampling process slow. Because we need to sample $x_{t-1}$ from $q(x_{t-1}|x_t,x_0)$, for every time step.</p>
+<p>Q: How to make it fast? <br>
+A: <em>Non-Markov Property</em>. I will introduce DDIM(Denosing Diffusion Implicit Models) in the next section, which is a non-Markov process.</p>
+<h1 id="ddim-denoising-diffusion-implicit-models">DDIM: Denoising Diffusion Implicit Models</h1>
+<blockquote>
+<p>DDIM is a non-Markov process, which can make the sampling process fast.</p></blockquote>
+<h2 id="how-to-make-ddpm-non-markov">How to make DDPM non-Markov?</h2>
+<ul>
+<li>Feature 1: We can directly apply DDIM on DDPM-trained model, which means we cannot apply a non-affine transformation to the <strong>loss function</strong>. (i.e., the $q(x_t|x_0)$ property should remain).
+<ul>
+<li>This feature means we still have the formula (5)</li>
+</ul>
+</li>
+<li>Feature 2: We need to change the sampling process, i.e., the $q(x_{t-1}|x_t,x_0)$ property should be changed to avoid <em>Markov Property</em>.
+<ul>
+<li>Without <em>Markov Property</em>, the $q(x_{t-1}|x_t,x_0)$ should be redefined. Intuitively, the paper suggests the distribution to be simple (i.e., Gaussian: $\mathcal{N}(\mu(x_t,x_0);\sigma_t^2)$).</li>
+<li>As a result, we use the method of indetermined coefficients to define the non-markov denoising distribution.
+\begin{equation}
+x_{t-1} = kx_0+mx_t + \sigma_t\epsilon_t, \quad \sigma_t = C, \epsilon_t \sim \mathcal{N}(0,\mathbf{I})
+\end{equation}</li>
+</ul>
+</li>
+</ul>
+<h2 id="deduction">Deduction</h2>
+<ol>
+<li>
+<p>By integrating Formula (7) and (8), we can get the following equation:
+\begin{align}
+kx_0 + mx_t + \sigma_t\epsilon_t &amp;= \sqrt{\alpha_{t-1}}x_0 + \sqrt{1-\alpha_{t-1}}\epsilon_{t-1}&rsquo; \\
+kx_0 + m(\sqrt{\alpha_t}x_0 + \sqrt{1-\alpha_t}\epsilon_t&rsquo;&rsquo;) + \sigma_t\epsilon_t &amp;= \sqrt{\alpha_{t-1}}x_0 + \sqrt{1-\alpha_{t-1}}\epsilon_{t-1}&rsquo; \\
+\end{align}</p>
+ <div style="background-color: lightyellow; padding: 10px;">
+     Notably, we cannot use simple math to solve the equation. Since $\epsilon_t$ is a random variable, we need to use the property of Gaussian distribution: $a\epsilon + b\epsilon' \sim \mathcal{N}(0,a^2+b^2)$, where $\epsilon$ and $\epsilon'$ are independent.
+ </div>
+</li>
+<li>
+<p>We can rewrite equation (10) as:</p>
+<p>\begin{equation}
+\mathcal{N}((k+m\sqrt{\alpha_t})x_0, (m^2(1-\alpha_t)+\sigma_t^2)\mathbf{I}) = \mathcal{N}(\sqrt{\alpha_{t-1}}x_0, (1-\alpha_{t-1})\mathbf{I})
+\end{equation}</p>
+</li>
+<li>
+<p>So, we can get the following equations:</p>
+<p>\begin{equation}
+\begin{cases}
+k+m\sqrt{\alpha_t} = \sqrt{\alpha_{t-1}} \\
+m^2(1-\alpha_t) + \sigma_t^2 = 1-\alpha_{t-1}
+\end{cases}
+\end{equation}</p>
+</li>
+<li>
+<p>Final formula:</p>
+<p>\begin{equation}
+q(x_{t-1}|x_t,x_0) = \mathcal{N}(\sqrt{\alpha_{t-1}}x_0 + \sqrt{1-\alpha_{t-1}-\sigma_t^2} \cdot \frac {x_t-\sqrt{\alpha_t}x_0}{\sqrt{1-\alpha_t}} , \sigma_t^2\mathbf{I})
+\end{equation}</p>
+</li>
+<li>
+<p>Since there is no <em>Markov Property</em>, we do not require $t-1$ and $t$ to be adjacent, i.e., we can set $t$ to be 900 and $t-1$ to be 100, which means we can skip 800 steps. This is the key to make DDIM fast.</p>
+</li>
+<li>
+<p>Finally, we have the equation (14). DDIM set $\sigma_t = 0$, i.e. no random noise.
+\begin{equation}
+x_{t-1} = \sqrt{\alpha_{t-1}}\underbrace{\left(\frac{x_t - \sqrt{1-\alpha_t}\epsilon_{\theta}(x_t)}{\sqrt{\alpha_t}}\right)}_{\text{predicted } x_0} + \underbrace{\sqrt{1-\alpha_{t-1}-\sigma_t^2} \cdot \epsilon_\theta(x_t)}_{\text{direction to } x_t} + \underbrace{\sigma_t\epsilon_t}_{\text{random noise}}
+\end{equation}</p>
+</li>
+<li>
+<p>Without random noise, we can say that DDIM is <strong>not a &ldquo;Diffusion&rdquo; model anymore</strong>, That&rsquo;s why it is called &ldquo;<strong>Implicit Model</strong>&rdquo;.</p>
+</li>
+</ol>
+ </div>
+
+    <footer class="single-post-footer">
+      <nav>
+        <a href="http://localhost:1313/MyPersonalWeb/blog/">← Back to Blog</a>
+      </nav>
+    </footer>
+  </article>
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Shu Pu Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+     
+  </body>
+</html>

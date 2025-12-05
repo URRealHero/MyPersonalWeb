@@ -1,0 +1,279 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head><script src="/MyPersonalWeb/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=MyPersonalWeb/livereload" data-no-instant defer></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Advanced Unified-Models | Shu Pu Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="http://localhost:1313/MyPersonalWeb/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="http://localhost:1313/MyPersonalWeb/css/stylesheet.css">
+
+    
+    <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
+    },
+
+    
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' 
+    },
+
+    
+    startup: {
+      
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
+</script>
+
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+
+     
+  </head>
+  <body class="">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="http://localhost:1313/MyPersonalWeb/" class="nav-home-link">Home</a>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> 
+      
+  <article class="single-post">
+    <header class="single-post-header">
+      <h1 class="single-post-title">Advanced Unified-Models</h1>
+      
+        <p class="single-post-meta">
+          Published on <time datetime="2025-06-05T23:00:30&#43;08:00">June 5, 2025</time>
+          </p>
+      
+    </header>
+
+    
+
+    
+      <aside class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#unified-discrete-diffusion-family">Unified Discrete Diffusion Family</a>
+      <ul>
+        <li><a href="#unidisc-unified-multimodal-discrete-diffusion">UniDisc: Unified Multimodal Discrete Diffusion</a></li>
+        <li><a href="#muddit-liberating-generation-beyond-text-to-image-with-a-unified-discrete-diffusion-model">Muddit: Liberating Generation Beyond Text-to-Image with a Unified Discrete Diffusion Model</a>
+          <ul>
+            <li><a href="#related-works">Related Works</a></li>
+          </ul>
+        </li>
+        <li><a href="#llada-series">Llada Series</a></li>
+      </ul>
+    </li>
+    <li><a href="#dual-diffusion-for-text-and-image-generation">Dual Diffusion for Text-and-Image Generation</a></li>
+    <li><a href="#proprietary">Proprietary</a></li>
+    <li><a href="#diffusion-llm-theory">Diffusion-LLM Theory</a></li>
+    <li><a href="#diffusion-llm-acceleration">Diffusion-LLM Acceleration</a></li>
+  </ul>
+</nav>
+      </aside>
+    
+
+    <div class="single-post-content">
+      <h1 id="diffusion-llms">Diffusion-LLMs</h1>
+<p>Just thinking like what diffusion model do in pure image generation</p>
+<ul>
+<li>
+<p>Masking paradigm 1: <em><strong>Absorbing-state Discrete Diffusion Models</strong></em>
+The core principle is simple:</p>
+<ol>
+<li>Take a piece of perfect data (like a sentence).</li>
+<li>Systematically and slowly destroy it by adding &ldquo;noise&rdquo; until it&rsquo;s unrecognizable.</li>
+<li>Train the model to learn how to precisely reverse that destruction process.</li>
+</ol>
+<p>How to corrupt a discrete token? We have one additional &lsquo;[MASK]&rsquo; token, which is used to replace the corrupted token.</p>
+<p>\begin{equation}
+q(x_t | \mathbf{x}) = \text{Cat}(\alpha_t \mathbf{x} + (1 - \alpha_t)\mathbf{m})
+\end{equation}</p>
+<p>Where $\mathbf{x}$ is a one-hot vector of the original token, $\mathbf{m}$ is a one-hot vector of the masked token, and $\alpha_t$ is a scalar that controls the amount of noise added. $\alpha_t$ is a schedular that controls the amount of noise added at each step.</p>
+<p>Then how do we reverse(denoise) the corrupted token?</p>
+<p>\begin{equation}
+q(x_s | x_t, \mathbf{x}) =
+\begin{cases}
+\text{Cat}(x_s | x_t), &amp; \text{if } x_t \neq \mathbf{m} \\
+\text{Cat}\left(x_s \left| \frac{(\alpha_s - \alpha_t)\mathbf{x} + (1 - \alpha_s)\mathbf{m}}{1 - \alpha_t}\right.\right), &amp; \text{if } x_t = \mathbf{m}
+\end{cases}
+\end{equation}</p>
+<p>Training Objactive: ELBO
+\begin{equation}
+\mathcal{L}_{MDM} = -\log p_\theta(x) \leq \int_0^1 \frac{1}{t} \mathbb{E}_{q_{t|0}(x_t | x_0)} \left[ \sum_{i:x_0^i = [MASK] -\log p_\theta(x_0^i|x_t)} \right] dt
+\end{equation}</p>
+<p>Deduction:
+Original DDPM:
+\begin{align}
+-\log p_\theta(x_0)
+= -\log\int p_\theta(x_{0:1}) dx_1                                      \notag\
+\le \mathbb{E}_{q}
+\Bigl[
+\log q(x_{0:1}\mid x_0)
+- \log p_\theta(x_{0:1})
+\Bigr] &amp;= \mathcal{L}_{\text{DDPM}}
+\\
+= \mathrm{KL}\bigl(q(x_T \mid x_0)\|p_\theta(x_T)\bigr) + \sum_{t=1}^{T}
+\mathbb{E}_{q}
+\Bigl[
+\mathrm{KL}\bigl(
+q(x_{t-1} \mid x_t,x_0)\|_\theta(x_{t-1}\mid x_t)
+\bigr)
+\Bigr]
+\end{align}</p>
+<p>As for discrete diffusion ELBO(Catogorical distribution) at time t, <strong>ONLY</strong> unmasked token $x_t^i$ can be masked at $dt$
+for a position $i$: (e.g. the schedular function $\alpha_t$)
+\begin{equation}
+\text{maskrate}(t) = 1-\alpha_t
+\end{equation}</p>
+<p>So we need to make the mask rate increase $m(t+dt)-m(t)$ during a small time period $dt$:
+\begin{align}
+\alpha_t \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} = \text{maskrate}(t+dt) - \text{maskrate}(t) \\
+p_{mask} = \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} \\
+q_{(t+dt)|t}(x_t^i \to [MASK]) = p_{mask} = \frac{-d\alpha_t}{\alpha_t} ,\quad  \text{if } x_t^i \neq [MASK]
+\end{align}</p>
+<p>Now, reformulate the KL divergence:
+\begin{align}
+-\log p_\theta(x_0)
+\le
+\mathbb{E}_{q}\Bigl[\log q(x_{0:1} \mid x_0) - \log p_\theta(x_{0:1})\Bigr]
+= \int_{0}^{1}
+\underbrace{
+\mathbb{E}_{q_{t \mid 0}(x_t \mid x_0)}
+\Bigl[
+\mathrm{KL}\bigl(q_{t+dt \mid t}(\cdot\mid x_t)\|p_\theta(\cdot\mid x_t)\bigr)
+\Bigr]
+}
+\\
+\text{where} \quad \mathrm{KL}\bigl(q_{t+dt \mid t}(\cdot\mid x_t)\|p_\theta(\cdot\mid x_t)\bigr) = \sum_{i:x_t^i \neq [\text{MASK}]}
+q_{t+dt \mid t}(x_t^i \to [MASK])\bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr] \notag\\
+= \sum_{i:x_t^i \neq [\text{MASK}]} \bigl( \frac{-d\alpha_t}{\alpha_t} \bigr) \bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr] \notag\\
+= -\frac{d\alpha_t}{\alpha_t} \sum_{i:x_t^i \neq [\text{MASK}]} \bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr]
+\end{align}</p>
+<p>This gives us our final objective, which connects back to Equation (3):
+\begin{equation}
+\mathcal{L}_{\text{MDM}} \le \int_0^1 \frac{-d\alpha_t}{\alpha_t} \mathbb{E}{q_{t|0}(x_t | x_0)} \left[ \sum_{i:x_t^i \neq [\text{MASK}]} [-\log p_\theta(x_0^i|x_t)] \right]
+\end{equation}</p>
+</li>
+<li>
+<p>Decoding Paradigm 1: <em><strong>Confidence-based Remasking</strong></em></p>
+<ul>
+<li>The core idea is to use a confidence score to determine whether to remask a token during decoding.</li>
+<li>If the confidence score of a token is below a certain threshold, it is remasked and decoded again.</li>
+</ul>
+</li>
+<li>
+<p>Decoding Paradigm 2: <em><strong>Semi-Autoregressive Decoding</strong></em></p>
+<ul>
+<li>The core idea is to split response $\mathbf{r}$ into k blocks $\mathbf{r}_1, \mathbf{r}_2, \ldots, \mathbf{r}_k$ and decode each block in an autoregressive way.</li>
+<li>Inside each block, the model can decode tokens in parallel.</li>
+</ul>
+</li>
+</ul>
+<h2 id="unified-discrete-diffusion-family">Unified Discrete Diffusion Family</h2>
+<h3 id="unidisc-unified-multimodal-discrete-diffusion"><a href="https://unidisc.github.io/">UniDisc</a>: Unified Multimodal Discrete Diffusion</h3>
+<p><img src="http://localhost:1313/MyPersonalWeb/images/blogs/UnifiedModels/UniDisc.png" alt="Fail to load its arch"></p>
+<h3 id="muddit-liberating-generation-beyond-text-to-image-with-a-unified-discrete-diffusion-model"><a href="https://arxiv.org/abs/2505.23606">Muddit</a>: Liberating Generation Beyond Text-to-Image with a Unified Discrete Diffusion Model</h3>
+<ul>
+<li>Using one unified discrete diffusion for image and text generation
+<img src="http://localhost:1313/MyPersonalWeb/images/blogs/UnifiedModels/Muddit.png" alt="Fail to load its architecture" title="Muddit Architecture"></li>
+</ul>
+<h4 id="related-works">Related Works</h4>
+<ul>
+<li><a href="https://masked-generative-image-transformer.github.io/">MaskGIT</a></li>
+<li><a href="https://arxiv.org/abs/2410.08261">Meissonic</a></li>
+</ul>
+<h3 id="llada-series">Llada Series</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2502.09992">LLADA 1</a></li>
+<li><a href="https://arxiv.org/abs/2505.16933">LLADA V</a></li>
+<li><a href="https://arxiv.org/abs/2505.19223">LLADA 1.5</a></li>
+</ul>
+<h2 id="dual-diffusion-for-text-and-image-generation"><a href="https://arxiv.org/abs/2501.00289">Dual Diffusion</a> for Text-and-Image Generation</h2>
+<h2 id="proprietary">Proprietary</h2>
+<ul>
+<li><a href="https://deepmind.google/models/gemini-diffusion/">Gemini Diffusion</a></li>
+<li><a href="https://arxiv.org/abs/2504.05979">GPT-4o</a></li>
+</ul>
+<h2 id="diffusion-llm-theory">Diffusion-LLM Theory</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2505.21400">A Convergence Theory for Diffusion Language Models: An Information-Theoretic Perspective</a></li>
+</ul>
+<h2 id="diffusion-llm-acceleration">Diffusion-LLM Acceleration</h2>
+<ul>
+<li><a href="https://nvlabs.github.io/Fast-dLLM/">Fast DLLM</a>
+<ul>
+<li>Two Features:
+<ol>
+<li>KV Cache for block-wise decoding
+<ul>
+<li>It can be used since the activation vector of LLADA-Instruct KV is nearly identical across different block-denoising steps.</li>
+<li>Dual KV Cache: make following &lsquo;[MASK]&rsquo; sequences KV cached when decoding current block</li>
+</ul>
+</li>
+<li>Confidence-Aware Parallel Decoding
+<ul>
+<li>Why? Curse of parallel decoding, two related tokens may be decoded in parallel, leading to a loss of coherence.</li>
+<li>How? Compute a confidence score for each token, unmask tokens exceeding a certain threshold. If no tokens exceed the threshold, decode one with highest confidence to avoid deadlock.</li>
+<li>Why this works? Formal solution: greedy parallel (product of marginal distribution) decoding is equivalent to greedy sequential (true joint distribution) decoding in the high-confidence regime.</li>
+<li><img src="http://localhost:1313/MyPersonalWeb/images/blogs/UnifiedModels/FastDLLM.png" alt="Fail to load its theorem" title="Fast DLLM Theorem"></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><a href="https://github.com/maomaocun/dLLM-cache">dLLM-Cache</a>
+<ul>
+<li>This paper investigate the KV changing mechanism(similar to above)</li>
+<li>How to identify significantly changing tokens?
+<ul>
+<li>Exp shows K/V changing is strongly correlated with the changes in its subsequence $\mathbf{AttnOut}$ and $\mathbf{FFNOut}$.</li>
+<li>Pipeline: <img src="http://localhost:1313/MyPersonalWeb/images/blogs/UnifiedModels/dllm_cache.png" alt="Fail to load its pipeline" title="dLLM-Cache Pipeline"></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ </div>
+
+    <footer class="single-post-footer">
+      <nav>
+        <a href="http://localhost:1313/MyPersonalWeb/blog/">← Back to Blog</a>
+      </nav>
+    </footer>
+  </article>
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Shu Pu Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+     
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shu Pu Website</title>
+    <link>http://localhost:1313/MyPersonalWeb/</link>
+    <description>Recent content on Shu Pu Website</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 21 Sep 2025 18:42:37 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/MyPersonalWeb/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flash Attention</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/gpu/flash-attention/</link>
+      <pubDate>Sun, 21 Sep 2025 18:42:37 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/gpu/flash-attention/</guid>
+      <description>&lt;h2 id=&#34;1-gpu--triton-basics&#34;&gt;1 GPU &amp;amp; Triton Basics&lt;/h2&gt;&#xA;&lt;h3 id=&#34;11-gpu&#34;&gt;1.1 GPU&lt;/h3&gt;&#xA;&lt;p&gt;Modern GPUs are &lt;strong&gt;throughput&lt;/strong&gt; machines. You get speed by keeping thousands of lightweight threads busy and by &lt;strong&gt;streaming&lt;/strong&gt; data through fast on-chip memory.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;SMs (Streaming Multiprocessors):&lt;/strong&gt; independent compute units that schedule warps and run your kernel.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Warps:&lt;/strong&gt; groups of (typically) &lt;strong&gt;&lt;strong&gt;32&lt;/strong&gt;&lt;/strong&gt; threads executing the same instruction (SIMT). If threads branch, the warp serializes.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Memory hierarchy (fastest → slowest):&lt;/strong&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Registers&lt;/strong&gt; (per-thread, tiny, fastest)&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Shared memory / on-chip SRAM&lt;/strong&gt; (per-block/program, fast)&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;L1/L2 caches&lt;/strong&gt; (hardware-managed)&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Global memory (HBM)&lt;/strong&gt; (large, high latency; high bandwidth if accesses are &lt;strong&gt;coalesced&lt;/strong&gt;)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Performance levers:&lt;/strong&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Tiling:&lt;/strong&gt; load a small &lt;strong&gt;tile&lt;/strong&gt; from global → compute heavily in registers/SRAM → write back.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Coalescing:&lt;/strong&gt; threads in a warp should touch contiguous addresses.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Occupancy:&lt;/strong&gt; keep enough warps resident to hide latency.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Arithmetic intensity:&lt;/strong&gt; do more math per byte moved.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;Think in tiles, not elements.&lt;/strong&gt; A good kernel is “load tile → compute a lot → store tile”.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>DDG Course 2-4: Geometry and Mathematical Basis</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/geometry/geometrybasis/</link>
+      <pubDate>Sat, 12 Jul 2025 14:14:51 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/geometry/geometrybasis/</guid>
+      <description>Mesh; Manifold; Exterior Algebra; K-forms</description>
+    </item>
+    <item>
+      <title>Advanced Unified-Models</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/unifiedmodel/recent_advances/</link>
+      <pubDate>Thu, 05 Jun 2025 23:00:30 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/unifiedmodel/recent_advances/</guid>
+      <description>Recording the reading progress of recent advanced unified-models and diffusion-LLMs</description>
+    </item>
+    <item>
+      <title>DDG course 1: Curvature</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/geometry/overview/</link>
+      <pubDate>Wed, 04 Jun 2025 15:40:10 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/geometry/overview/</guid>
+      <description>Four types of curvature and curvature flow</description>
+    </item>
+    <item>
+      <title>Diffusion-Series 2 - An introduction to Consistency Model</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/diffusions/consistencymodel/</link>
+      <pubDate>Tue, 03 Jun 2025 21:06:41 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/diffusions/consistencymodel/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Diffusion-Series 1 - DDIM: Making Diffusion not Diffusioning</title>
+      <link>http://localhost:1313/MyPersonalWeb/blog/diffusions/ddim/</link>
+      <pubDate>Tue, 03 Jun 2025 18:04:52 +0800</pubDate>
+      <guid>http://localhost:1313/MyPersonalWeb/blog/diffusions/ddim/</guid>
+      <description>This is a simple explanation of DDIM, a fast sampling method for diffusion models. It is based on the original DDPM, but it is not a diffusion model anymore.</description>
+    </item>
+  </channel>
+</rss>

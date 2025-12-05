@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head><script src="/MyPersonalWeb/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=MyPersonalWeb/livereload" data-no-instant defer></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Latest GPU Technologies | Shu Pu Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="http://localhost:1313/MyPersonalWeb/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="http://localhost:1313/MyPersonalWeb/css/stylesheet.css">
+
+    
+    <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
+    },
+
+    
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' 
+    },
+
+    
+    startup: {
+      
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
+</script>
+
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+
+     
+  </head>
+  <body class="
+  blog-post-list
+  
+">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="http://localhost:1313/MyPersonalWeb/" class="nav-home-link">Home</a>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> 
+      
+  <header class="page-header">
+    <h1>Latest GPU Technologies</h1>
+  </header>
+
+  
+
+  
+    
+    <div class="featured-blogs-grid">
+      
+      
+        
+        <article class="blog-card">
+          
+          <div class="blog-card-content">
+            <h2 class="blog-card-title"><a href="http://localhost:1313/MyPersonalWeb/blog/gpu/flash-attention/">Flash Attention</a></h2>
+            
+              <p class="blog-card-meta">
+                Posted: <time datetime="2025-09-21T18:42:37&#43;08:00">Sep 21, 2025</time>
+              </p>
+            
+            <p class="blog-card-summary"><h2 id="1-gpu--triton-basics">1 GPU &amp; Triton Basics</h2>
+<h3 id="11-gpu">1.1 GPU</h3>
+<p>Modern GPUs are <strong>throughput</strong> machines. You get speed by keeping thousands of lightweight threads busy and by <strong>streaming</strong> data through fast on-chip memory.</p>
+<ul>
+<li><strong>SMs (Streaming Multiprocessors):</strong> independent compute units that schedule warps and run your kernel.</li>
+<li><strong>Warps:</strong> groups of (typically) <strong><strong>32</strong></strong> threads executing the same instruction (SIMT). If threads branch, the warp serializes.</li>
+<li><strong>Memory hierarchy (fastest → slowest):</strong>
+<ul>
+<li><strong>Registers</strong> (per-thread, tiny, fastest)</li>
+<li><strong>Shared memory / on-chip SRAM</strong> (per-block/program, fast)</li>
+<li><strong>L1/L2 caches</strong> (hardware-managed)</li>
+<li><strong>Global memory (HBM)</strong> (large, high latency; high bandwidth if accesses are <strong>coalesced</strong>)</li>
+</ul>
+</li>
+<li><strong>Performance levers:</strong>
+<ul>
+<li><strong>Tiling:</strong> load a small <strong>tile</strong> from global → compute heavily in registers/SRAM → write back.</li>
+<li><strong>Coalescing:</strong> threads in a warp should touch contiguous addresses.</li>
+<li><strong>Occupancy:</strong> keep enough warps resident to hide latency.</li>
+<li><strong>Arithmetic intensity:</strong> do more math per byte moved.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Think in tiles, not elements.</strong> A good kernel is “load tile → compute a lot → store tile”.</p></p>
+          </div>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/gpu/flash-attention/" class="card-link-overlay" aria-label="Read more about Flash Attention"></a>
+        </article>
+      
+    </div>
+    
+  
+
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Shu Pu Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+     
+  </body>
+</html>

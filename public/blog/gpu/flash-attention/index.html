@@ -1,0 +1,632 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head><script src="/MyPersonalWeb/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=MyPersonalWeb/livereload" data-no-instant defer></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Flash Attention | Shu Pu Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="http://localhost:1313/MyPersonalWeb/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="http://localhost:1313/MyPersonalWeb/css/stylesheet.css">
+
+    
+    <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
+    },
+
+    
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' 
+    },
+
+    
+    startup: {
+      
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
+</script>
+
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+
+     
+  </head>
+  <body class="">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="http://localhost:1313/MyPersonalWeb/" class="nav-home-link">Home</a>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> 
+      
+  <article class="single-post">
+    <header class="single-post-header">
+      <h1 class="single-post-title">Flash Attention</h1>
+      
+        <p class="single-post-meta">
+          Published on <time datetime="2025-09-21T18:42:37&#43;08:00">September 21, 2025</time>
+          </p>
+      
+    </header>
+
+    
+
+    
+      <aside class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-gpu--triton-basics">1 GPU &amp; Triton Basics</a>
+      <ul>
+        <li><a href="#11-gpu">1.1 GPU</a></li>
+        <li><a href="#12-why-triton-helps-vs-hand-cuda-or-naïve-pytorch">1.2 Why Triton helps (vs. hand CUDA or naïve PyTorch)</a></li>
+        <li><a href="#13-triton-kernel-anatomy-must-know-primitives">1.3 Triton kernel anatomy (must-know primitives)</a></li>
+        <li><a href="#14-minimal-triton-kernel-template-tile-wise-mapreduce">1.4 Minimal Triton kernel template (tile-wise map/reduce)</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-flashattention--forward-pass-code-walkthrough">2 FlashAttention — Forward Pass (Code Walkthrough)</a>
+      <ul>
+        <li><a href="#21-launch-geometry--meta-parameters">2.1 Launch geometry &amp; meta-parameters</a></li>
+        <li><a href="#22-block-pointers-q--o--l">2.2 Block pointers (Q / O / L)</a></li>
+        <li><a href="#23-on-chip-state-compute-path--fp32">2.3 On-chip state (compute path = fp32)</a></li>
+        <li><a href="#24-loop-over-kv-tiles-single-pass">2.4 Loop over <strong>K/V</strong> tiles (single pass)</a></li>
+        <li><a href="#25-tail-masking--causal-masking-before-reductions">2.5 Tail masking &amp; causal masking (before reductions)</a></li>
+        <li><a href="#26-online-softmax-update-per-row-streaming-tiles">2.6 Online softmax update (per row, streaming tiles)</a></li>
+        <li><a href="#27-finalize--write-back">2.7 Finalize &amp; write back</a></li>
+        <li><a href="#28-wrapper--tests">2.8 Wrapper &amp; tests</a></li>
+        <li><a href="#29-where-the-speedups-come-from-compared-to-naïve-attention">2.9 Where the speedups come from (compared to naïve attention)</a></li>
+        <li><a href="#210-practical-knobs-for-later">2.10 Practical knobs (for later)</a></li>
+        <li><a href="#211-one-screen-summary">2.11 One-screen summary</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-flashattention--backward-pass-recompute-two-pass">3 FlashAttention — Backward Pass (recompute, two-pass)</a>
+      <ul>
+        <li><a href="#31-what-we-saved-in-forward">3.1 What we saved in forward</a></li>
+        <li><a href="#32-gradients-you-would-compute-naively">3.2 Gradients you would compute naively</a></li>
+        <li><a href="#33-two-pass-streaming-algorithm-per-q-tile">3.3 Two-pass streaming algorithm (per Q-tile)</a></li>
+        <li><a href="#34-masking--stability-details">3.4 Masking &amp; stability details</a></li>
+        <li><a href="#35-pseudocode-pytorch-ish-math-not-a-kernel">3.5 Pseudocode (PyTorch-ish math, not a kernel)</a></li>
+        <li><a href="#36-what-makes-it-fast">3.6 What makes it fast</a></li>
+        <li><a href="#37-minimal-checks-you-should-run">3.7 Minimal checks you should run</a></li>
+        <li><a href="#38-implementation-tips-when-you-triton-ize-it">3.8 Implementation tips (when you Triton-ize it)</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </aside>
+    
+
+    <div class="single-post-content">
+      <h2 id="1-gpu--triton-basics">1 GPU &amp; Triton Basics</h2>
+<h3 id="11-gpu">1.1 GPU</h3>
+<p>Modern GPUs are <strong>throughput</strong> machines. You get speed by keeping thousands of lightweight threads busy and by <strong>streaming</strong> data through fast on-chip memory.</p>
+<ul>
+<li><strong>SMs (Streaming Multiprocessors):</strong> independent compute units that schedule warps and run your kernel.</li>
+<li><strong>Warps:</strong> groups of (typically) <strong><strong>32</strong></strong> threads executing the same instruction (SIMT). If threads branch, the warp serializes.</li>
+<li><strong>Memory hierarchy (fastest → slowest):</strong>
+<ul>
+<li><strong>Registers</strong> (per-thread, tiny, fastest)</li>
+<li><strong>Shared memory / on-chip SRAM</strong> (per-block/program, fast)</li>
+<li><strong>L1/L2 caches</strong> (hardware-managed)</li>
+<li><strong>Global memory (HBM)</strong> (large, high latency; high bandwidth if accesses are <strong>coalesced</strong>)</li>
+</ul>
+</li>
+<li><strong>Performance levers:</strong>
+<ul>
+<li><strong>Tiling:</strong> load a small <strong>tile</strong> from global → compute heavily in registers/SRAM → write back.</li>
+<li><strong>Coalescing:</strong> threads in a warp should touch contiguous addresses.</li>
+<li><strong>Occupancy:</strong> keep enough warps resident to hide latency.</li>
+<li><strong>Arithmetic intensity:</strong> do more math per byte moved.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Think in tiles, not elements.</strong> A good kernel is “load tile → compute a lot → store tile”.</p></blockquote>
+<hr>
+<h3 id="12-why-triton-helps-vs-hand-cuda-or-naïve-pytorch">1.2 Why Triton helps (vs. hand CUDA or naïve PyTorch)</h3>
+<p>Triton is a Python DSL that compiles to optimized GPU code. You write kernels at the <strong>tile</strong> level with NumPy-like vector ops; the compiler handles vectorization, coalescing, and register allocation.</p>
+<p>What Triton buys you:</p>
+<ul>
+<li><strong>Block-level programming:</strong> one <code>@triton.jit</code> program operates on a tile (e.g., <code>BLOCK_M × BLOCK_N</code>).</li>
+<li><strong>Simple indexing:</strong> <code>tl.program_id</code>, <code>tl.arange</code> make 2D grids and tile addressing natural.</li>
+<li><strong>Safe 2D tiles:</strong> <code>tl.make_block_ptr(..., boundary_check=..., padding_option=...)</code> handles tails cleanly.</li>
+<li><strong>Mixed precision done right:</strong> compute in fp32 (<code>out_dtype=tl.float32</code>), store in bf16/fp16.</li>
+<li><strong>Autotuning:</strong> <code>@triton.autotune</code> can pick tile sizes/warps/stages per shape.</li>
+<li><strong>Portability:</strong> write Python; Triton emits CUDA kernels.</li>
+</ul>
+<p>You still think like a GPU engineer (tiling, coalescing, occupancy), but <strong>without</strong> the boilerplate.</p>
+<hr>
+<h3 id="13-triton-kernel-anatomy-must-know-primitives">1.3 Triton kernel anatomy (must-know primitives)</h3>
+<ul>
+<li><code>@triton.jit</code>: compile a Python function into a GPU kernel.</li>
+<li><code>tl.program_id(dim)</code>: which program (a.k.a. block) am I along dimension <code>dim</code>?</li>
+<li><code>tl.arange(start, size)</code>: vector of indices inside a tile.</li>
+<li><code>tl.load / tl.store(ptrs, mask=..., other=...)</code>: vectorized memory I/O, with masks for tail tiles.</li>
+<li><code>tl.make_block_ptr(base, shape, strides, offsets, block_shape, order)</code>: 2D tile view with strides.</li>
+<li><code>tl.dot(A, B, out_dtype=tl.float32)</code>: matmul along the <strong>last</strong> dimension; accumulates in fp32.</li>
+<li><code>tl.max / tl.sum / tl.exp / tl.log</code>: warp-friendly reductions and elementwise math.</li>
+<li><code>tl.constexpr</code>: compile-time constants (tile sizes, head dims, etc.) for better codegen.</li>
+</ul>
+<hr>
+<h3 id="14-minimal-triton-kernel-template-tile-wise-mapreduce">1.4 Minimal Triton kernel template (tile-wise map/reduce)</h3>
+<p>This is a skeleton you can reuse (layernorm, row-softmax, per-row transforms…). It shows:</p>
+<ul>
+<li>how to build a 1D grid,</li>
+<li>load a <strong>[BLOCK_M, D]</strong> tile,</li>
+<li>compute in fp32,</li>
+<li>store with masks.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> triton
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> triton.language <span style="color:#66d9ef">as</span> tl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@triton.jit</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">kernel_template</span>(
+</span></span><span style="display:flex;"><span>    X_ptr, Y_ptr,               <span style="color:#75715e"># base pointers</span>
+</span></span><span style="display:flex;"><span>    stride_xm, stride_xd,       <span style="color:#75715e"># X strides (elements, not bytes)</span>
+</span></span><span style="display:flex;"><span>    stride_ym, stride_yd,       <span style="color:#75715e"># Y strides (elements)</span>
+</span></span><span style="display:flex;"><span>    M, D,                       <span style="color:#75715e"># problem sizes: rows (M) and cols (D)</span>
+</span></span><span style="display:flex;"><span>    BLOCK_M: tl<span style="color:#f92672">.</span>constexpr,      <span style="color:#75715e"># compile-time tile height</span>
+</span></span><span style="display:flex;"><span>    BLOCK_D: tl<span style="color:#f92672">.</span>constexpr,      <span style="color:#75715e"># compile-time tile width (often equals D)</span>
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Each program processes one row tile [BLOCK_M, D]</span>
+</span></span><span style="display:flex;"><span>    pid_m <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>program_id(<span style="color:#ae81ff">0</span>)                         <span style="color:#75715e"># which tile along rows</span>
+</span></span><span style="display:flex;"><span>    row_start <span style="color:#f92672">=</span> pid_m <span style="color:#f92672">*</span> BLOCK_M
+</span></span><span style="display:flex;"><span>    m_idxs <span style="color:#f92672">=</span> row_start <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_M)       <span style="color:#75715e"># [BLOCK_M] row indices</span>
+</span></span><span style="display:flex;"><span>    d_idxs <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_D)                   <span style="color:#75715e"># [BLOCK_D] col indices</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Tail masks (handle last partial tile safely)</span>
+</span></span><span style="display:flex;"><span>    m_mask <span style="color:#f92672">=</span> m_idxs <span style="color:#f92672">&lt;</span> M
+</span></span><span style="display:flex;"><span>    d_mask <span style="color:#f92672">=</span> d_idxs <span style="color:#f92672">&lt;</span> D
+</span></span><span style="display:flex;"><span>    mask2d <span style="color:#f92672">=</span> m_mask[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">&amp;</span> d_mask[<span style="color:#66d9ef">None</span>, :]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2D pointer grids for a [BLOCK_M, D] tile</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># A[:None] is broadcasting 1D to entire 2D row</span>
+</span></span><span style="display:flex;"><span>    x_ptrs <span style="color:#f92672">=</span> X_ptr <span style="color:#f92672">+</span> m_idxs[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_xm <span style="color:#f92672">+</span> d_idxs[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_xd
+</span></span><span style="display:flex;"><span>    y_ptrs <span style="color:#f92672">=</span> Y_ptr <span style="color:#f92672">+</span> m_idxs[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_ym <span style="color:#f92672">+</span> d_idxs[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_yd
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Load tile → upcast for numerics (compute path in fp32)</span>
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(x_ptrs, mask<span style="color:#f92672">=</span>mask2d, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32)   <span style="color:#75715e"># [BLOCK_M, BLOCK_D] ~ [BM, D]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ---- Your compute here (map/reduce) ----</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Example: per-row mean-centering</span>
+</span></span><span style="display:flex;"><span>    row_mean <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>sum(x, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> D                           <span style="color:#75715e"># [BM]</span>
+</span></span><span style="display:flex;"><span>    y <span style="color:#f92672">=</span> x <span style="color:#f92672">-</span> row_mean[:, <span style="color:#66d9ef">None</span>]                                   <span style="color:#75715e"># broadcast subtract</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Store back (cast if needed)</span>
+</span></span><span style="display:flex;"><span>    tl<span style="color:#f92672">.</span>store(y_ptrs, y<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32), mask<span style="color:#f92672">=</span>mask2d)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">launch_template</span>(x: torch<span style="color:#f92672">.</span>Tensor) <span style="color:#f92672">-&gt;</span> torch<span style="color:#f92672">.</span>Tensor:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> x<span style="color:#f92672">.</span>is_cuda
+</span></span><span style="display:flex;"><span>    M, D <span style="color:#f92672">=</span> x<span style="color:#f92672">.</span>shape
+</span></span><span style="display:flex;"><span>    y <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>empty_like(x, dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Simple heuristics; autotune later</span>
+</span></span><span style="display:flex;"><span>    BLOCK_M, BLOCK_D <span style="color:#f92672">=</span> <span style="color:#ae81ff">128</span>, min(<span style="color:#ae81ff">128</span>, <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (D <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>bit_length())  <span style="color:#75715e"># power-of-two-ish</span>
+</span></span><span style="display:flex;"><span>    grid <span style="color:#f92672">=</span> (triton<span style="color:#f92672">.</span>cdiv(M, BLOCK_M),)                            <span style="color:#75715e"># 1D grid over rows</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    kernel_template[grid](          <span style="color:#75715e"># only pass grid size</span>
+</span></span><span style="display:flex;"><span>        x, y,
+</span></span><span style="display:flex;"><span>        x<span style="color:#f92672">.</span>stride(<span style="color:#ae81ff">0</span>), x<span style="color:#f92672">.</span>stride(<span style="color:#ae81ff">1</span>),
+</span></span><span style="display:flex;"><span>        y<span style="color:#f92672">.</span>stride(<span style="color:#ae81ff">0</span>), y<span style="color:#f92672">.</span>stride(<span style="color:#ae81ff">1</span>),
+</span></span><span style="display:flex;"><span>        M, D,
+</span></span><span style="display:flex;"><span>        BLOCK_M<span style="color:#f92672">=</span>BLOCK_M, BLOCK_D<span style="color:#f92672">=</span>BLOCK_D,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> y
+</span></span></code></pre></div><h2 id="2-flashattention--forward-pass-code-walkthrough">2 FlashAttention — Forward Pass (Code Walkthrough)</h2>
+<p>Below I unpack your forward kernel <strong>module by module</strong> and explain how each piece maps to the FlashAttention idea (tiling → matmul → online softmax → causal mask → finalize), and <strong>why</strong> it accelerates compared to naïve attention.</p>
+<blockquote>
+<p>Setup: tensors are single-head with shape <strong>[B, S, D]</strong>. Heads can be folded into <code>B</code> later.</p></blockquote>
+<hr>
+<h3 id="21-launch-geometry--meta-parameters">2.1 Launch geometry &amp; meta-parameters</h3>
+<ul>
+<li><strong>Grid</strong>: <code>grid = (ceil_div(S, Q_TILE_SIZE), B)</code>
+Each Triton program (“block”) processes <strong>one Q tile</strong> of <code>Q_TILE_SIZE</code> rows for <strong>one batch</strong>.</li>
+<li><strong>Scale</strong>: <code>scale = 1 / sqrt(D)</code> (scaled dot-product).</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+Parallelizes across (query tiles × batches) for high occupancy; keeps per-program working set small enough to stay in registers/L1.</p>
+<hr>
+<h3 id="22-block-pointers-q--o--l">2.2 Block pointers (Q / O / L)</h3>
+<p>These build safe 2D views over tiles with correct strides and tail handling:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>Q_block <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>make_block_ptr(
+</span></span><span style="display:flex;"><span>    base<span style="color:#f92672">=</span>Q_ptr <span style="color:#f92672">+</span> b <span style="color:#f92672">*</span> stride_qb,
+</span></span><span style="display:flex;"><span>    shape<span style="color:#f92672">=</span>(N_QUERIES, D),
+</span></span><span style="display:flex;"><span>    strides<span style="color:#f92672">=</span>(stride_qq, stride_qd),
+</span></span><span style="display:flex;"><span>    offsets<span style="color:#f92672">=</span>(qtile <span style="color:#f92672">*</span> Q_TILE_SIZE, <span style="color:#ae81ff">0</span>),
+</span></span><span style="display:flex;"><span>    block_shape<span style="color:#f92672">=</span>(Q_TILE_SIZE, D),
+</span></span><span style="display:flex;"><span>    order<span style="color:#f92672">=</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>),  <span style="color:#75715e"># D contiguous for coalesced IO</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>O_block <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>make_block_ptr(<span style="color:#f92672">...</span> same tiling <span style="color:#66d9ef">as</span> Q <span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>L_block <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>make_block_ptr(<span style="color:#f92672">...</span> <span style="color:#ae81ff">1</span>D tile of size Q_TILE_SIZE <span style="color:#f92672">...</span>)
+</span></span></code></pre></div><p><strong>Why it’s fast</strong>
+<code>order=(1, 0)</code> makes the <strong>D</strong> dimension contiguous → coalesced loads/stores along D; fewer transactions to HBM.</p>
+<hr>
+<h3 id="23-on-chip-state-compute-path--fp32">2.3 On-chip state (compute path = fp32)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>Q_tile <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(Q_block, <span style="color:#f92672">...</span>)<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32)   <span style="color:#75715e"># [bq, D]</span>
+</span></span><span style="display:flex;"><span>O_acc  <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>zeros((Q_TILE_SIZE, D), tl<span style="color:#f92672">.</span>float32) <span style="color:#75715e"># numerator accumulator</span>
+</span></span><span style="display:flex;"><span>m      <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>full((Q_TILE_SIZE,), <span style="color:#f92672">-</span>inf, tl<span style="color:#f92672">.</span>float32)  <span style="color:#75715e"># running max per row</span>
+</span></span><span style="display:flex;"><span>l      <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>zeros((Q_TILE_SIZE,), tl<span style="color:#f92672">.</span>float32)       <span style="color:#75715e"># running partition sum</span>
+</span></span></code></pre></div><ul>
+<li>Load <strong>Q</strong> once and keep it on-chip; stream <strong>K/V</strong> tiles.</li>
+<li>Keep all reductions/matmul <strong>in fp32</strong> for stability.</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+Reuses Q from registers; avoids reloading. fp32 accumulation avoids numerical blow-ups that would otherwise force extra passes.</p>
+<hr>
+<h3 id="24-loop-over-kv-tiles-single-pass">2.4 Loop over <strong>K/V</strong> tiles (single pass)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>k0 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> k0 <span style="color:#f92672">&lt;</span> N_KEYS:
+</span></span><span style="display:flex;"><span>    K_block <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>make_block_ptr(<span style="color:#f92672">...</span> offsets<span style="color:#f92672">=</span>(k0, <span style="color:#ae81ff">0</span>), block_shape<span style="color:#f92672">=</span>(K_TILE_SIZE, D))
+</span></span><span style="display:flex;"><span>    V_block <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>make_block_ptr(<span style="color:#f92672">...</span> offsets<span style="color:#f92672">=</span>(k0, <span style="color:#ae81ff">0</span>), block_shape<span style="color:#f92672">=</span>(K_TILE_SIZE, D))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    K_tile <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(K_block, <span style="color:#f92672">...</span>)<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32)  <span style="color:#75715e"># [bk, D]</span>
+</span></span><span style="display:flex;"><span>    V_tile <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(V_block, <span style="color:#f92672">...</span>)                 <span style="color:#75715e"># [bk, D] (storage dtype)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    S_ij <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>dot(Q_tile, tl<span style="color:#f92672">.</span>trans(K_tile), out_dtype<span style="color:#f92672">=</span>tl<span style="color:#f92672">.</span>float32) <span style="color:#f92672">*</span> scale  <span style="color:#75715e"># [bq, bk]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>    k0 <span style="color:#f92672">+=</span> K_TILE_SIZE
+</span></span></code></pre></div><ul>
+<li>Compute a <strong>local score tile</strong> <code>S_ij</code> for <code>(Q_tile × K_tile)</code>; <strong>consume immediately</strong>.</li>
+<li>No global write/read of <code>S</code>.</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+Naïve attention materializes <code>S = QK^T</code> (O(S²) memory traffic). This keeps <code>S_ij</code> ephemeral (registers/L1 only).</p>
+<hr>
+<h3 id="25-tail-masking--causal-masking-before-reductions">2.5 Tail masking &amp; causal masking (before reductions)</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Tail keys (last K-tile)</span>
+</span></span><span style="display:flex;"><span>k_abs  <span style="color:#f92672">=</span> k0 <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, K_TILE_SIZE)          <span style="color:#75715e"># [bk]</span>
+</span></span><span style="display:flex;"><span>k_mask <span style="color:#f92672">=</span> k_abs <span style="color:#f92672">&lt;</span> N_KEYS
+</span></span><span style="display:flex;"><span>S_ij   <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>where(k_mask[<span style="color:#66d9ef">None</span>, :], S_ij, <span style="color:#f92672">-</span><span style="color:#ae81ff">1e6</span>)   <span style="color:#75715e"># kill OOB columns</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Causal: forbid future keys</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> is_causal:
+</span></span><span style="display:flex;"><span>    q_abs    <span style="color:#f92672">=</span> (qtile <span style="color:#f92672">*</span> Q_TILE_SIZE) <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, Q_TILE_SIZE)  <span style="color:#75715e"># [bq]</span>
+</span></span><span style="display:flex;"><span>    mask_tri <span style="color:#f92672">=</span> k_abs[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&gt;</span> q_abs[:, <span style="color:#66d9ef">None</span>]                    <span style="color:#75715e"># [bq, bk]</span>
+</span></span><span style="display:flex;"><span>    S_ij     <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>where(mask_tri, <span style="color:#f92672">-</span><span style="color:#ae81ff">1e6</span>, S_ij)
+</span></span></code></pre></div><ul>
+<li><strong>Mask early</strong> so invalid lanes can’t become the row max.</li>
+<li>Use a large negative (e.g., <code>-1e6</code>) instead of <code>-inf</code> to avoid NaNs on some GPUs.</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+Prevents bogus maxima and wasted compute; keeps the numerics well-conditioned for the next reductions.</p>
+<hr>
+<h3 id="26-online-softmax-update-per-row-streaming-tiles">2.6 Online softmax update (per row, streaming tiles)</h3>
+<p>We maintain row-wise <code>(m, l)</code> and an unnormalized accumulator <code>O_acc</code>. For each tile:</p>
+$$
+\begin{aligned}
+t      &= \max_{k \in \text{tile}} S_{ik} \\
+m_{\text{new}} &= \max(m,\, t) \\
+\tilde{P}_{ik} &= \exp(S_{ik} - m_{\text{new}}) \\
+\alpha &= \exp(m - m_{\text{new}}) \\
+l      &\leftarrow \alpha \, l + \sum_{k} \tilde{P}_{ik} \\
+O_{\text{acc}} &\leftarrow \alpha \, O_{\text{acc}} + \tilde{P} \; @ \; V_{\text{tile}}
+\end{aligned}
+$$<p>Code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tmax  <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>max(S_ij, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)                  <span style="color:#75715e"># [bq]</span>
+</span></span><span style="display:flex;"><span>m_new <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>maximum(m, tmax)                   <span style="color:#75715e"># [bq]</span>
+</span></span><span style="display:flex;"><span>P_tld <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>exp(S_ij <span style="color:#f92672">-</span> m_new[:, <span style="color:#66d9ef">None</span>])         <span style="color:#75715e"># [bq, bk]</span>
+</span></span><span style="display:flex;"><span>alpha <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>exp(m <span style="color:#f92672">-</span> m_new)                     <span style="color:#75715e"># [bq]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>O_acc <span style="color:#f92672">=</span> alpha[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> O_acc <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>dot(P_tld, V_tile<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32), out_dtype<span style="color:#f92672">=</span>tl<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>l     <span style="color:#f92672">=</span> alpha <span style="color:#f92672">*</span> l <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>sum(P_tld, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>m     <span style="color:#f92672">=</span> m_new
+</span></span></code></pre></div><ul>
+<li><code>P_tld</code> are <strong>tile-local</strong> unnormalized probabilities.</li>
+<li><code>alpha</code> rescales prior state when the running max increases.</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+This computes <strong>exact softmax</strong> without ever holding an entire row of <code>S</code>. Memory stays O(bq·D); K/V each stream <strong>once</strong>.</p>
+<hr>
+<h3 id="27-finalize--write-back">2.7 Finalize &amp; write back</h3>
+$$
+O = \frac{O_{\text{acc}}}{l[:, \text{None}]}, \qquad
+L = m + \log(l)
+$$<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>O_out <span style="color:#f92672">=</span> O_acc <span style="color:#f92672">/</span> l[:, <span style="color:#66d9ef">None</span>]
+</span></span><span style="display:flex;"><span>tl<span style="color:#f92672">.</span>store(O_block, O_out<span style="color:#f92672">.</span>to(O_block<span style="color:#f92672">.</span>type<span style="color:#f92672">.</span>element_ty), boundary_check<span style="color:#f92672">=</span>(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>L_row <span style="color:#f92672">=</span> m <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>log(l <span style="color:#f92672">+</span> <span style="color:#ae81ff">1e-20</span>)
+</span></span><span style="display:flex;"><span>tl<span style="color:#f92672">.</span>store(L_block, L_row, boundary_check<span style="color:#f92672">=</span>(<span style="color:#ae81ff">0</span>,))
+</span></span></code></pre></div><ul>
+<li><code>O</code> is the final output; cast back to storage dtype on store if needed.</li>
+<li><code>L</code> is rowwise <strong>log-sum-exp</strong>, saved for recomputation-based backward.</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+We still avoid O(S²) tensors in forward; <code>L</code> lets backward reconstruct probabilities tile-by-tile (still streaming).</p>
+<hr>
+<h3 id="28-wrapper--tests">2.8 Wrapper &amp; tests</h3>
+<ul>
+<li>
+<p>The <code>autograd.Function.forward</code> launches the kernel with:</p>
+<ul>
+<li>pointers + <strong>element strides</strong> (<code>tensor.stride()</code> is already in elements)</li>
+<li>sizes <code>(S, S, scale)</code></li>
+<li>meta: <code>D</code>, <code>Q_TILE_SIZE</code>, <code>K_TILE_SIZE</code>, <code>is_causal</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Reference check</strong>: builds <code>S_full</code> in fp32, applies the same causal mask, softmax in fp32, and compares <code>O</code> (bf16 tolerances like <code>atol ~ 1e-3–2e-3</code>, <code>rtol ~ 1e-2</code> are typical).</p>
+</li>
+</ul>
+<p><strong>Why it’s fast</strong>
+All PyTorch reference ops materialize <code>S</code> and (implicitly) <code>P</code>; your Triton kernel never does. The difference grows with sequence length.</p>
+<hr>
+<h3 id="29-where-the-speedups-come-from-compared-to-naïve-attention">2.9 Where the speedups come from (compared to naïve attention)</h3>
+<p><strong>Naïve pipeline</strong></p>
+<ol>
+<li><code>S = Q @ K^T</code>  → write <code>S</code> (O(S²))</li>
+<li><code>P = softmax(S)</code> → read <code>S</code>, write <code>P</code> (O(S²))</li>
+<li><code>O = P @ V</code> → read <code>P</code> (O(S²))</li>
+</ol>
+<p><strong>FlashAttention pipeline</strong></p>
+<ul>
+<li>Never materializes <code>S</code> or <code>P</code>.</li>
+<li>Streams <strong>K/V once</strong> per Q-tile; updates on-chip <code>(m, l, O_acc)</code>.</li>
+<li>Writes only <strong>O</strong> (and <code>L</code>) → memory traffic scales like <strong>O(B·S·D)</strong>.</li>
+</ul>
+<blockquote>
+<p>Less memory, fewer global reads/writes, better cache reuse → large speedups, especially for long sequences.</p></blockquote>
+<hr>
+<h3 id="210-practical-knobs-for-later">2.10 Practical knobs (for later)</h3>
+<ul>
+<li>
+<p>Start with <code>Q_TILE=128</code>, <code>K_TILE=128</code>; add <code>@triton.autotune</code> over a small grid:</p>
+<ul>
+<li><code>(Q_TILE, K_TILE) ∈ {(64,128), (128,128), (128,256), (256,128)}</code></li>
+<li><code>num_warps ∈ {4, 8}</code>, <code>num_stages = 2</code></li>
+</ul>
+</li>
+<li>
+<p>Keep <strong>fp32 accumulation</strong>: <code>tl.dot(..., out_dtype=tl.float32)</code>.</p>
+</li>
+<li>
+<p>Always <strong>mask</strong> tail + causal <strong>before</strong> reductions/exp.</p>
+</li>
+<li>
+<p>Use a large negative (e.g., <code>-1e6</code>) instead of <code>-inf</code> inside kernels.</p>
+</li>
+</ul>
+<hr>
+<h3 id="211-one-screen-summary">2.11 One-screen summary</h3>
+<pre tabindex="0"><code>Q_tile [bq,D] ───┐
+                  ├─ for k0 in range(0, S, K_TILE):
+K_tile [bk,D] ────┤     S_ij = Q_tile @ K_tile^T
+V_tile [bk,D] ────┤     mask_tail / mask_causal
+                  ├─►   m,l,O_acc ← online softmax updates
+                  │
+                  └─ finalize: O = O_acc / l ;  save L = m + log(l)
+</code></pre><p>That’s the forward story: <strong>fix a Q tile</strong>, <strong>stream K/V once</strong>, <strong>online softmax</strong>, <strong>normalize</strong>, <strong>store O/L</strong>.</p>
+<h2 id="3-flashattention--backward-pass-recompute-two-pass">3 FlashAttention — Backward Pass (recompute, two-pass)</h2>
+<p>Backward is where FlashAttention shines: we get <strong>exact gradients</strong> without ever materializing the $S\times S$ softmax matrix. The trick is to <strong>recompute</strong> local softmax probabilities from the saved <strong>row log-sum-exp</strong> $L$ and stream over $K/V$ tiles <strong>twice</strong>.</p>
+<hr>
+<h3 id="31-what-we-saved-in-forward">3.1 What we saved in forward</h3>
+<p>Per query row $i$ we stored</p>
+$$
+L_i \;=\; \log \sum_{j=1}^S e^{S_{ij}} \;=\; m_i + \log \ell_i,
+$$<p>so we can always reconstruct probabilities by</p>
+$$
+P_{ij} \;=\; \frac{e^{S_{ij}}}{\sum_k e^{S_{ik}}} \;=\; e^{\,S_{ij} - L_i}.
+$$<p>No need to store $m,\ell$ separately—$L$ is enough.</p>
+<hr>
+<h3 id="32-gradients-you-would-compute-naively">3.2 Gradients you would compute naively</h3>
+<p>Let $O = P V$, with $S = \text{scale}\cdot Q K^\top$, $\text{scale}=1/\sqrt{D}$, and upstream gradient $\mathrm{d}O$.</p>
+<ol>
+<li>Softmax Jacobian (rowwise). If $y=\mathrm{softmax}(x)$ and $g=\partial \mathcal{L}/\partial y$, then</li>
+</ol>
+$$
+\frac{\partial \mathcal{L}}{\partial x}
+= \big(\mathrm{diag}(y) - y\,y^\top\big)\, g
+= y \odot \big(g - (y^\top g)\,\mathbf{1}\big).
+$$<ol start="2">
+<li>Chain rule for attention:</li>
+</ol>
+$$
+\begin{aligned}
+\mathrm{d}V &= P^\top\, \mathrm{d}O,\\
+\mathrm{d}P &= \mathrm{d}O\, V^\top,\\
+\mathrm{d}S &= P \odot \Big(\mathrm{d}P \;-\; \big(\,(P \odot \mathrm{d}P)\,\mathbf{1}\,\big)\Big),
+\end{aligned}
+$$<p>where the subtraction uses the rowwise scalar</p>
+$$
+\Delta_i \;=\; \sum_{j} P_{ij}\,\mathrm{d}P_{ij}.
+$$<p>Finally, because $S=\text{scale}\cdot QK^\top$,</p>
+$$
+\mathrm{d}Q = \text{scale}\cdot \mathrm{d}S\,K,\qquad
+\mathrm{d}K = \text{scale}\cdot \mathrm{d}S^\top\,Q.
+$$<blockquote>
+<p>Key observation: the only “global across keys” quantity you need per row is the <strong>scalar</strong> $\Delta_i$. That’s why we can stream.</p></blockquote>
+<hr>
+<h3 id="33-two-pass-streaming-algorithm-per-q-tile">3.3 Two-pass streaming algorithm (per Q-tile)</h3>
+<p><strong>Inputs:</strong> $Q,K,V,\mathrm{d}O,L$, flags (causal), strides.
+<strong>Outputs:</strong> $\mathrm{d}Q,\mathrm{d}K,\mathrm{d}V$.</p>
+<ul>
+<li>
+<p>Fix one <strong>Q-tile</strong> $[b_q, D]$ (same tiling as forward).</p>
+</li>
+<li>
+<p><strong>Pass 1 (compute $\mathrm{d}V$ and $\Delta$)</strong>
+For each $K/V$ tile $[b_k, D]$:</p>
+<ol>
+<li>
+<p>Recompute scores $S_{ij} = \text{scale}\cdot Q_{\text{tile}} K_{\text{tile}}^\top$.</p>
+</li>
+<li>
+<p>Apply <strong>tail</strong> and <strong>causal</strong> masks (same logic as forward).</p>
+</li>
+<li>
+<p>Recompute probabilities $P_{\text{tile}} = \exp(S_{ij} - L_i)$.</p>
+</li>
+<li>
+<p>Compute $\mathrm{d}P_{\text{tile}} = \mathrm{d}O_{\text{tile}}\, V_{\text{tile}}^\top$.</p>
+</li>
+<li>
+<p>Accumulate:</p>
+$$
+     \mathrm{d}V_{\text{tile}} \;{+}{=}\; P_{\text{tile}}^\top \,\mathrm{d}O_{\text{tile}},\qquad
+     \Delta \;{+}{=}\; \sum_{j\in \text{tile}} P_{ij}\,\mathrm{d}P_{ij}.
+     $$</li>
+</ol>
+<p>(Apply masks to $P$ and $\mathrm{d}P$ so masked entries contribute 0.)</p>
+</li>
+<li>
+<p><strong>Pass 2 (compute $\mathrm{d}Q$ and $\mathrm{d}K$)</strong>
+Re-loop over the same tiles:</p>
+<ol>
+<li>
+<p>Recompute $S_{ij}$ and $P_{\text{tile}}$ as above.</p>
+</li>
+<li>
+<p>Recompute $\mathrm{d}P_{\text{tile}} = \mathrm{d}O_{\text{tile}}\, V_{\text{tile}}^\top$.</p>
+</li>
+<li>
+<p>Form $\mathrm{d}S_{\text{tile}} = P_{\text{tile}} \odot \big(\mathrm{d}P_{\text{tile}} - \Delta[:,\text{None}]\big)$.</p>
+</li>
+<li>
+<p>Accumulate:</p>
+$$
+     \mathrm{d}Q_{\text{tile}} \;{+}{=}\; \text{scale}\cdot \mathrm{d}S_{\text{tile}}\, K_{\text{tile}},\quad
+     \mathrm{d}K_{\text{tile}} \;{+}{=}\; \text{scale}\cdot \mathrm{d}S_{\text{tile}}^\top\, Q_{\text{tile}}.
+     $$</li>
+</ol>
+</li>
+<li>
+<p>Write back $\mathrm{d}Q_{\text{tile}}$. For $\mathrm{d}K,\mathrm{d}V$ (shared across Q-tiles), use either <strong>atomic adds</strong> or partition work to avoid write conflicts.</p>
+</li>
+</ul>
+<blockquote>
+<p>Why two passes? Because $\Delta_i$ needs a <strong>sum over all keys</strong>. We first collect $\Delta$ and $\mathrm{d}V$ while streaming once, then use $\Delta$ to form $\mathrm{d}S$ in a second stream.</p></blockquote>
+<hr>
+<h3 id="34-masking--stability-details">3.4 Masking &amp; stability details</h3>
+<ul>
+<li><strong>Tail mask</strong> (last K-tile): zero out contributions where key index $\ge S$.</li>
+<li><strong>Causal mask</strong>: forbid keys $j>i$ — set $S_{ij}$ to a large negative (e.g., $-10^6$) <em>before</em> the exp.
+In backward, also zero out the same masked positions in $P$ and $\mathrm{d}P$.</li>
+<li><strong>Recompute $P$ with $L$</strong>: $P = \exp(S - L)$. Since $L\ge \max_j S_{ij}$, exponents are $\le e^0$, numerically safe.</li>
+<li><strong>Accumulation dtype</strong>: keep all reductions/matmuls in <strong>fp32</strong>; cast only on final store.</li>
+</ul>
+<hr>
+<h3 id="35-pseudocode-pytorch-ish-math-not-a-kernel">3.5 Pseudocode (PyTorch-ish math, not a kernel)</h3>
+<pre tabindex="0"><code># Inputs: Q[K], K[S], V[S], dO[S], L[S]; all [B, S, D] except L [B, S]
+dQ = zeros_like(Q); dK = zeros_like(K); dV = zeros_like(V)
+
+for each batch b:
+  for each Q-tile rows I (size = bq):
+    Qb = Q[b, I, :]           # [bq, D]
+    dOb = dO[b, I, :]
+    Lb = L[b, I]              # [bq]
+    Delta = zeros(bq)         # row scalars
+
+    # ---- Pass 1: dV and Delta ----
+    for each K/V-tile cols J (size = bk):
+      Kb = K[b, J, :]         # [bk, D]
+      Vb = V[b, J, :]         # [bk, D]
+
+      S = (Qb @ Kb.T) * scale               # [bq, bk]
+      mask_tail_and_causal_inplace(S, I, J) # set masked to -1e6
+      P = exp(S - Lb[:, None])              # [bq, bk]
+      dP = dOb @ Vb.T                       # [bq, bk]
+      mask_tail_and_causal_inplace(P, I, J); mask_inplace(dP, I, J)
+
+      dV[b, J, :] += P.T @ dOb              # [bk, D]
+      Delta += sum(P * dP, dim=1)           # [bq]
+
+    # ---- Pass 2: dQ and dK ----
+    dQb = zeros(bq, D)
+    for each K/V-tile cols J (size = bk):
+      Kb = K[b, J, :]
+      Vb = V[b, J, :]
+
+      S  = (Qb @ Kb.T) * scale
+      mask_tail_and_causal_inplace(S, I, J)
+      P  = exp(S - Lb[:, None])
+      dP = dOb @ Vb.T
+      mask_tail_and_causal_inplace(P, I, J); mask_inplace(dP, I, J)
+
+      dS = P * (dP - Delta[:, None])        # [bq, bk]
+      dQb += dS @ Kb * scale                # [bq, D]
+      dK[b, J, :] += dS.T @ Qb * scale      # [bk, D]
+
+    dQ[b, I, :] = dQb
+</code></pre><p><em>Notes:</em> <code>mask_inplace</code> zeros masked entries; implement causal as <code>j&gt;I</code> (or <code>k_abs &gt; q_abs</code>). In Triton, use the same masking predicates as forward. For <code>dK</code>/<code>dV</code>, if multiple Q-tiles update the same rows $J$, use <code>atomic_add</code> or partition updates.</p>
+<hr>
+<h3 id="36-what-makes-it-fast">3.6 What makes it fast</h3>
+<ul>
+<li><strong>No $S\times S$ tensors</strong> in backward either. We recompute local $P$ from $L$ and stream $K/V$ <strong>twice</strong>.</li>
+<li><strong>Row-scalar $\Delta$</strong> is the only global coupling; it’s cheap to accumulate.</li>
+<li>Math is <strong>exact</strong> (no approximation), matching the naïve gradients.</li>
+</ul>
+<hr>
+<h3 id="37-minimal-checks-you-should-run">3.7 Minimal checks you should run</h3>
+<ul>
+<li>
+<p>Compare against a small PyTorch reference (materialize $S$ and $P$ just for testing):</p>
+<ul>
+<li>Random $B,S,D$ (e.g., $1, 64, 32$), with and without causal.</li>
+<li>Check $\mathrm{d}Q,\mathrm{d}K,\mathrm{d}V$ with <code>torch.autograd.gradcheck</code> in fp64 (if feasible) or numeric finite differences on tiny problems.</li>
+</ul>
+</li>
+<li>
+<p>Ensure masked positions give <strong>zero</strong> contributions to all grads.</p>
+</li>
+</ul>
+<hr>
+<h3 id="38-implementation-tips-when-you-triton-ize-it">3.8 Implementation tips (when you Triton-ize it)</h3>
+<ul>
+<li>
+<p>Use the <strong>same grid</strong> as forward: programs over (Q-tiles × batch[×heads]).</p>
+</li>
+<li>
+<p><strong>Pass 1</strong> and <strong>Pass 2</strong> can be separate kernels (simpler) or fused (harder).</p>
+</li>
+<li>
+<p>Keep <code>tl.dot(..., out_dtype=tl.float32)</code>, and <strong>mask before</strong> reductions.</p>
+</li>
+<li>
+<p>For $\mathrm{d}K,\mathrm{d}V$ collisions, either:</p>
+<ul>
+<li>assign disjoint $J$ ranges per program, or</li>
+<li>use <code>tl.atomic_add</code> on the output tiles.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>That’s the whole backward story: <strong>recompute $P$ with $L$</strong>, <strong>two streaming passes</strong> to get $\mathrm{d}V$ and the row scalars $\Delta$, then $\mathrm{d}Q,\mathrm{d}K$ with one more stream—still no $S^2$ anywhere.</p>
+ </div>
+
+    <footer class="single-post-footer">
+      <nav>
+        <a href="http://localhost:1313/MyPersonalWeb/blog/">← Back to Blog</a>
+      </nav>
+    </footer>
+  </article>
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Shu Pu Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+     
+  </body>
+</html>

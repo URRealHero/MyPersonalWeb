@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head><script src="/MyPersonalWeb/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=MyPersonalWeb/livereload" data-no-instant defer></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>DDG Course 2-4: Geometry and Mathematical Basis | Shu Pu Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="http://localhost:1313/MyPersonalWeb/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="http://localhost:1313/MyPersonalWeb/css/stylesheet.css">
+
+    
+    <script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+
+      tags: 'ams',
+      macros: {}
+    },
+
+    
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'kbd'],
+
+    },
+
+    chtml: {
+      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2' 
+    },
+
+    
+    startup: {
+      
+      ready: () => {
+        MathJax.startup.defaultReady();
+      }
+    }
+  };
+</script>
+
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+
+     
+  </head>
+  <body class="">
+
+    <header class="site-header">
+      <div class="nav-container"> <nav class="main-nav">
+          <a href="http://localhost:1313/MyPersonalWeb/" class="nav-home-link">Home</a>
+          <a href="http://localhost:1313/MyPersonalWeb/blog/" class="nav-blog-link">Blog</a>
+          </nav>
+      </div>
+    </header>
+
+    <div class="main-content-container"> 
+      
+  <article class="single-post">
+    <header class="single-post-header">
+      <h1 class="single-post-title">DDG Course 2-4: Geometry and Mathematical Basis</h1>
+      
+        <p class="single-post-meta">
+          Published on <time datetime="2025-07-12T14:14:51&#43;08:00">July 12, 2025</time>
+          </p>
+      
+    </header>
+
+    
+
+    
+      <aside class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#simplex">Simplex</a></li>
+    <li><a href="#simplicial-complex">Simplicial Complex</a></li>
+    <li><a href="#orientation">Orientation</a></li>
+  </ul>
+</nav>
+      </aside>
+    
+
+    <div class="single-post-content">
+      <h1 id="mesh">Mesh</h1>
+<h2 id="simplex">Simplex</h2>
+<ul>
+<li>
+<p>A k-simplex is a k-dimensional convex hull of its k+1 affinely independent points, which we call vertices.</p>
+</li>
+<li>
+<p>Simplex -&gt; Barycentric coordinates</p>
+<ul>
+<li>In the triangle shown with vertices $p_1, p_2, p_3$, the point $p$ can be described by the specific barycentric coordinates $(t_1, t_2, t_3) = (0.2, 0.4, 0.4)$:</li>
+</ul>
+</li>
+</ul>
+$$
+p = \frac{2}{10}p_1 + \frac{4}{10}p_2 + \frac{4}{10}p_3
+$$<h2 id="simplicial-complex">Simplicial Complex</h2>
+<ul>
+<li>A bunch of simplices</li>
+<li>Face definition 1: A face of a simplex is any lower-dimensional simplex formed by a subset of its vertices.</li>
+<li>A geometric simplicial complex: a collection of simplices where
+<ul>
+<li>The intersection of any two simplices is either empty or a simplex in the complex.</li>
+<li>every face of a simplex in the complex is also in the complex.</li>
+</ul>
+</li>
+<li>An abstract simplicial complex: for each simplex, all its subsets are also contained in the complex.
+<ul>
+<li>Only how things are connected matters, not their geometric embedding.</li>
+</ul>
+</li>
+</ul>
+<h2 id="orientation">Orientation</h2>
+<ul>
+<li>For 2-simplex, specify by tuple (even permutation)</li>
+</ul>
+<h1 id="manifold">Manifold</h1>
+<h1 id="exterior-algebra">Exterior Algebra</h1>
+<h1 id="k-forms">K-forms</h1>
+ </div>
+
+    <footer class="single-post-footer">
+      <nav>
+        <a href="http://localhost:1313/MyPersonalWeb/blog/">← Back to Blog</a>
+      </nav>
+    </footer>
+  </article>
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Shu Pu Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+     
+  </body>
+</html>
