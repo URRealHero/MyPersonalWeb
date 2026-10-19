@@ -1,5 +1,6 @@
 +++
-date = '2026-10-18T14:00:00-07:00'
+date = '2026-01-19T14:00:00-08:00'
+lastmod = '2026-10-19T12:00:00-07:00'
 draft = false
 title = 'Diffusion-Series 3 - One Step: Consistency Models, Flow Maps, MeanFlow, and Distillation'
 summary = "How to generate in a single network evaluation: the flow map that every 1-NFE method learns, the from-scratch line from consistency models to MeanFlow and drifting, the three families of distillation, and where the ImageNet numbers stand."

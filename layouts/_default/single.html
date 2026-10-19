@@ -17,6 +17,7 @@
         {{ with .Params.summary }}<p class="single-post-summary">{{ . }}</p>{{ end }}
         <p class="single-post-meta">
           {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> &middot; {{ end }}
+          {{ if and (not .Date.IsZero) (gt (.Lastmod.Sub .Date).Hours 24.0) }}Updated <time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "January 2, 2006" }}</time> &middot; {{ end }}
           {{ .ReadingTime }} min read
         </p>
         {{ with .Params.tags }}

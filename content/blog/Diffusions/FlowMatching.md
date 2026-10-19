@@ -1,5 +1,6 @@
 +++
-date = '2026-10-18T13:00:00-07:00'
+date = '2026-01-12T13:00:00-08:00'
+lastmod = '2026-10-19T12:00:00-07:00'
 draft = false
 title = 'Diffusion-Series 2 - Flow Matching: Diffusion as a Velocity Field'
 summary = "From DDIM's deterministic sampler to flow matching and rectified flow: what the network learns, why the loss works, how it relates to epsilon-prediction, and why straight training paths still give curved sampling paths."
