@@ -129,172 +129,464 @@ span.highlight {
 }
 
 
-/*  Featured Blogs and Slides Styles
-  ---------------------------------
-  These styles are for the featured blogs and slides section.
+/*  Blog Styles
+  -------------
+  Blog home, topic pages and single posts. The home page keeps the
+  table layout above; everything here is scoped to blog markup.
 */
 
-.page-header {
-  text-align: center; /* As in the example image */
-  margin-bottom: 30px; /* Space below "Featured Blogs and Slides" title */
-  /* Add styling for the "FEATURED" text if you want that subheading effect */
+.blog-page {
+  --ink: #1f2328;
+  --muted: #59636e;
+  --rule: #e5e7eb;
+  --soft: #f6f8fa;
+  --accent: #1772d0;
+  color: var(--ink);
 }
 
-.page-header h1 {
-  font-size: 2em; /* Adjust as needed */
-  text-transform: uppercase; /* As in the example */
-  color: #333;
-  /* Add any other styling for the main "BLOGS AND SLIDES" title */
+.blog-page p,
+.blog-page a,
+.blog-page td,
+.blog-page th,
+.blog-page strong {
+  font-size: inherit;
 }
 
+.breadcrumb {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 
-.featured-blogs-grid {
+.breadcrumb a { font-size: 15px; }
+.breadcrumb span { margin: 0 6px; }
+
+.blog-hero {
+  margin: 10px 0 30px;
+}
+
+.blog-hero h1 {
+  font-size: 40px;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.blog-hero-summary {
+  font-size: 19px;
+  color: var(--muted);
+  margin: 0;
+  max-width: 720px;
+}
+
+.blog-section-heading {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 8px;
+  margin: 36px 0 16px;
+}
+
+/* Topics */
+
+.topic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
-  gap: 25px; /* Space between cards */
-  padding: 10px; /* Optional padding around the grid */
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
 }
 
-.blog-card {
-  position: relative; /* Crucial for positioning the overlay link */
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
   overflow: hidden;
-  background-color: #fff;
+  background: #fff;
+  color: var(--ink);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.topic-card:hover,
+.topic-card:focus {
+  color: var(--ink);
+  border-color: #c9d1d9;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.topic-card-image {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+  background: var(--soft);
+}
+
+.topic-card-body {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  padding: 10px 12px 12px;
 }
 
-/* Ensure existing links within the card can still be interacted with if needed, 
-   by making sure they are "above" the overlay. */
-.blog-card-image-link {
-  display: block; /* Add this line */
-  position: relative; 
-  z-index: 2; 
+.topic-card-title {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
 }
 
-/* If you had a combined rule, split it or ensure .blog-card-image-link gets display:block */
-.blog-card-title a {
-  position: relative; 
-  z-index: 2; 
+.topic-card-count {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 2px;
 }
 
-.card-link-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1; /* Lower than explicit links within the card, but covers the rest */
-  /* Optional: For debugging, give it a semi-transparent background to see it
-  /* background-color: rgba(0, 255, 0, 0.1); */
+/* Post list */
+
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.blog-card-image {
-  width: 100%;
-  height: 200px; /* Fixed height for uniform card look, adjust as needed */
-  object-fit: cover; /* Covers the area, might crop */
-  display: block; /* Remove any extra space below image */
+.post-row {
+  border-bottom: 1px solid var(--rule);
 }
 
-.blog-card-content {
-  padding: 15px;
-  flex-grow: 1; /* Allows content to fill space if cards have different heights due to text */
+.post-row-link {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  column-gap: 20px;
+  padding: 18px 4px;
+  color: var(--ink);
+}
+
+.post-row-link:hover,
+.post-row-link:focus {
+  color: var(--ink);
+  background: var(--soft);
+}
+
+.post-row-meta {
+  grid-row: 1 / span 3;
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  color: var(--muted);
+  padding-top: 3px;
 }
 
-.blog-card-title {
-  font-size: 1.25em;
-  margin-top: 0;
-  margin-bottom: 10px;
+.post-row-topic {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.blog-card-title a {
-  text-decoration: none;
-  color: #222; /* Darker color for title */
+.post-row-title {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
-.blog-card-title a:hover {
-  color: #007bff; /* Example hover color */
-}
+.post-row-link:hover .post-row-title { color: var(--accent); }
 
-.blog-card-meta {
-  font-size: 0.85em;
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.blog-card-summary {
-  font-size: 0.95em;
-  color: #444;
+.post-row-summary {
+  font-size: 17px;
+  color: var(--muted);
   line-height: 1.5;
-  flex-grow: 1; /* Pushes meta to bottom if card content is primary flex child */
-  margin-bottom: 0; /* Remove default paragraph margin if it's the last item visually */
+  margin-top: 4px;
 }
 
-/*
-  Single Post Styles
-  ------------------
-  These styles are for the single post view.
-*/
+.post-row-reading {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.post-list-empty { color: var(--muted); }
+
+@media (max-width: 640px) {
+  .post-row-link { grid-template-columns: 1fr; }
+  .post-row-meta { grid-row: auto; flex-direction: row; gap: 12px; }
+  .blog-hero h1 { font-size: 32px; }
+}
+
+/* Single post */
+
+.post-layout {
+  display: block;
+}
+
 .single-post {
-  max-width: 800px; /* Or your preferred content width */
-  margin: 20px auto; /* Center it */
-  padding: 20px;
-  background-color: #fff; /* If your body has a different bg */
+  max-width: 740px;
+  margin: 0 auto;
+  min-width: 0;
 }
 
 .single-post-header {
-  text-align: center; /* Or left, as you prefer */
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .single-post-title {
-  font-size: 2.5em; /* Example */
-  margin-bottom: 10px;
+  font-size: 38px;
+  line-height: 1.2;
+  margin: 6px 0 12px;
+  letter-spacing: -0.01em;
+}
+
+.single-post-summary {
+  font-size: 19px;
+  color: var(--muted);
+  margin: 0 0 12px;
 }
 
 .single-post-meta {
-  font-size: 0.9em;
-  color: #555;
+  font-size: 15px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.post-tags {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.post-tags li {
+  font-size: 13px;
+  background: var(--soft);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: var(--muted);
 }
 
 .single-post-banner img {
-    width: 100%;
-    height: auto;
-    margin-bottom: 20px;
-    border-radius: 5px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 24px;
+  border-radius: 6px;
 }
 
 .table-of-contents {
-  background-color: #f8f8f8;
-  border: 1px solid #eee;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-}
-.table-of-contents ul {
-  padding-left: 20px;
-  list-style-type: circle;
+  font-size: 15px;
 }
 
+.table-of-contents ul {
+  list-style: none;
+  padding-left: 14px;
+  margin: 4px 0;
+}
+
+.table-of-contents > nav > ul,
+.table-of-contents nav > ul { padding-left: 0; }
+
+.table-of-contents li { margin: 4px 0; line-height: 1.4; }
+.table-of-contents a { font-size: 15px; color: var(--muted); }
+.table-of-contents a:hover { color: var(--accent); }
+
+.toc-inline {
+  background: var(--soft);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 28px;
+}
+
+.toc-inline summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.toc-side { display: none; }
+
+@media (min-width: 1100px) {
+  .main-content-container:has(.post-layout.has-toc) { max-width: 1120px; }
+
+  .post-layout.has-toc {
+    display: grid;
+    grid-template-columns: minmax(0, 740px) 240px;
+    justify-content: center;
+    gap: 48px;
+  }
+
+  .post-layout.has-toc .single-post { margin: 0; }
+  .post-layout.has-toc .toc-inline { display: none; }
+
+  .toc-side {
+    display: block;
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    border-left: 1px solid var(--rule);
+    padding-left: 16px;
+    margin-top: 60px;
+  }
+
+  .toc-side-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+}
 
 .single-post-content {
-  line-height: 1.7; /* For readability */
-  font-size: 1.1em; /* Adjust as needed */
+  font-size: 18px;
+  line-height: 1.75;
 }
 
-.single-post-content h2 { margin-top: 30px; }
-.single-post-content h3 { margin-top: 25px; }
+.single-post-content p,
+.single-post-content li { font-size: 18px; }
+
+.single-post-content h1,
+.single-post-content h2,
+.single-post-content h3,
+.single-post-content h4 {
+  line-height: 1.3;
+  scroll-margin-top: 16px;
+}
+
+.single-post-content h1 { font-size: 30px; margin-top: 44px; }
+.single-post-content h2 { font-size: 26px; margin-top: 44px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.single-post-content h3 { font-size: 21px; margin-top: 32px; }
+.single-post-content h4 { font-size: 18px; margin-top: 24px; }
+
+.heading-anchor {
+  font-size: 0.8em;
+  color: #c0c6cc;
+  margin-left: 4px;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+
+h2:hover > .heading-anchor,
+h3:hover > .heading-anchor,
+h4:hover > .heading-anchor,
+.heading-anchor:focus { opacity: 1; }
+
+.single-post-content blockquote {
+  margin: 20px 0;
+  padding: 4px 18px;
+  border-left: 4px solid #d0d7de;
+  color: var(--muted);
+  background: var(--soft);
+  border-radius: 0 6px 6px 0;
+}
+
+.single-post-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--soft);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.single-post-content pre {
+  border-radius: 6px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  line-height: 1.5;
+  border: 1px solid var(--rule);
+}
+
+.single-post-content pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.single-post-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+  font-size: 16px;
+  display: block;
+  overflow-x: auto;
+}
+
+.single-post-content th,
+.single-post-content td {
+  border: 1px solid var(--rule);
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.single-post-content th { background: var(--soft); }
+.single-post-content tr:nth-child(even) td { background: #fbfcfd; }
+
+.single-post-content hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 36px 0;
+}
+
+/* Display math scrolls inside the column on narrow screens instead of overflowing the page */
+.single-post-content mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+/* Task-list items ("- [ ]") render as a plain checklist */
+.single-post-content li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.3em;
+}
+
+.single-post-content li > input[type="checkbox"] {
+  margin: 0 8px 0 0;
+  vertical-align: -1px;
+}
+
+/* Callouts: <div class="callout"> ... </div>, optional .callout-warn */
+.callout {
+  border: 1px solid #b6d4f2;
+  background: #f1f7fd;
+  border-radius: 6px;
+  padding: 2px 16px;
+  margin: 20px 0;
+}
+
+.callout-warn {
+  border-color: #f2d8a7;
+  background: #fdf8ee;
+}
 
 .single-post-footer {
-  margin-top: 40px;
-  text-align: center;
-  border-top: 1px solid #eee;
+  margin-top: 48px;
+  border-top: 1px solid var(--rule);
   padding-top: 20px;
+  text-align: center;
+  font-size: 16px;
 }
+
+.single-post-footer a { font-size: 16px; }
+
+.post-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.post-pager-next { margin-left: auto; text-align: right; }
+
 
 /* Home button feature */
 

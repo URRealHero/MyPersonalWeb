@@ -1,33 +1,60 @@
+{{ define "body_class" }}blog-page{{ end }}
+
 {{ define "main" }}
-  <article class="single-post">
-    <header class="single-post-header">
-      <h1 class="single-post-title">{{ .Title }}</h1>
-      {{ if not .Date.IsZero }}
+  {{ $hasToc := strings.Contains .TableOfContents "<li>" }}
+  <div class="post-layout{{ if $hasToc }} has-toc{{ end }}">
+    <article class="single-post">
+      <nav class="breadcrumb">
+        <a href="{{ "/blog/" | relURL }}">Blog</a>
+        {{ if not .CurrentSection.Parent.IsHome }}
+          <span aria-hidden="true">/</span>
+          <a href="{{ .CurrentSection.RelPermalink }}">{{ .CurrentSection.Title }}</a>
+        {{ end }}
+      </nav>
+
+      <header class="single-post-header">
+        <h1 class="single-post-title">{{ .Title }}</h1>
+        {{ with .Params.summary }}<p class="single-post-summary">{{ . }}</p>{{ end }}
         <p class="single-post-meta">
-          Published on <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "January 2, 2006" }}</time>
-          </p>
-      {{ end }}
-    </header>
+          {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> &middot; {{ end }}
+          {{ .ReadingTime }} min read
+        </p>
+        {{ with .Params.tags }}
+          <ul class="post-tags">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>
+        {{ end }}
+      </header>
 
-    {{ with .Params.image }} <div class="single-post-banner">
-            <img src="{{ . | relURL }}" alt="{{ $.Title }}">
+      {{ with .Params.image }}
+        <div class="single-post-banner">
+          <img src="{{ . | relURL }}" alt="{{ $.Title }}">
         </div>
-    {{ end }}
+      {{ end }}
 
-    {{ if .TableOfContents }}
-      <aside class="table-of-contents">
-        <h2>Table of Contents</h2>
+      {{ if $hasToc }}
+        <details class="table-of-contents toc-inline">
+          <summary>Contents</summary>
+          {{ replace .TableOfContents `id="TableOfContents"` "" | safeHTML }}
+        </details>
+      {{ end }}
+
+      <div class="single-post-content">
+        {{ .Content }}
+      </div>
+
+      <footer class="single-post-footer">
+        <nav class="post-pager">
+          {{ with .PrevInSection }}<a class="post-pager-prev" href="{{ .RelPermalink }}">&larr; {{ .Title }}</a>{{ else }}<span></span>{{ end }}
+          {{ with .NextInSection }}<a class="post-pager-next" href="{{ .RelPermalink }}">{{ .Title }} &rarr;</a>{{ end }}
+        </nav>
+        <a href="{{ "/blog/" | relURL }}">Back to Blog</a>
+      </footer>
+    </article>
+
+    {{ if $hasToc }}
+      <aside class="table-of-contents toc-side" aria-label="Contents">
+        <p class="toc-side-title">Contents</p>
         {{ .TableOfContents }}
       </aside>
     {{ end }}
-
-    <div class="single-post-content">
-      {{ .Content }} </div>
-
-    <footer class="single-post-footer">
-      <nav>
-        <a href="{{ "/blog/" | relURL }}">← Back to Blog</a>
-      </nav>
-    </footer>
-  </article>
+  </div>
 {{ end }}

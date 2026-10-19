@@ -1,0 +1,16 @@
+{{/* A compact list of posts. Context: a page collection. */}}
+<ul class="post-list">
+  {{ range . }}
+    <li class="post-row">
+      <a class="post-row-link" href="{{ .RelPermalink }}">
+        <span class="post-row-meta">
+          {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2006" }}</time>{{ end }}
+          {{ if ne .CurrentSection.Section "" }}{{ if not .CurrentSection.Parent.IsHome }}<span class="post-row-topic">{{ .CurrentSection.Title }}</span>{{ end }}{{ end }}
+        </span>
+        <span class="post-row-title">{{ .Title }}</span>
+        {{ with .Params.summary }}<span class="post-row-summary">{{ . }}</span>{{ end }}
+        <span class="post-row-reading">{{ .ReadingTime }} min read</span>
+      </a>
+    </li>
+  {{ end }}
+</ul>

@@ -26,32 +26,32 @@ Just thinking like what diffusion model do in pure image generation
     \begin{equation}
     q(x_s | x_t, \mathbf{x}) =
     \begin{cases}
-        \text{Cat}(x_s | x_t), & \text{if } x_t \neq \mathbf{m} \\\
+        \text{Cat}(x_s | x_t), & \text{if } x_t \neq \mathbf{m} \\
         \text{Cat}\left(x_s \left| \frac{(\alpha_s - \alpha_t)\mathbf{x} + (1 - \alpha_s)\mathbf{m}}{1 - \alpha_t}\right.\right), & \text{if } x_t = \mathbf{m}
     \end{cases}
     \end{equation}
 
     Training Objactive: ELBO
     \begin{equation}
-        \mathcal{L}\_{MDM} = -\log p\_\theta(x) \leq \int_0^1 \frac{1}{t} \mathbb{E}\_{q_{t|0}(x_t | x_0)} \left[ \sum_{i:x_0^i = [MASK] -\log p\_\theta(x_0^i|x_t)} \right] dt 
+        \mathcal{L}_{MDM} = -\log p_\theta(x) \leq \int_0^1 \frac{1}{t} \mathbb{E}_{q_{t|0}(x_t | x_0)} \left[ \sum_{i:x_0^i = [MASK] -\log p_\theta(x_0^i|x_t)} \right] dt 
     \end{equation}
 
     Deduction:
     Original DDPM:
         \begin{align}
-        -\log p\_\theta(x_0)
-        = -\log\int p\_\theta(x_{0:1}) dx_1                                      \notag\\
+        -\log p_\theta(x_0)
+        = -\log\int p_\theta(x_{0:1}) dx_1                                      \notag\\
         \le \mathbb{E}_{q}
             \Bigl[
-                \log q(x\_{0:1}\mid x_0)
-                - \log p\_\theta(x\_{0:1})
-            \Bigr] &= \mathcal{L}\_{\text{DDPM}}
-        \\\
-        = \mathrm{KL}\bigl(q(x\_T \mid x\_0)\\|p\_\theta(x\_T)\bigr) + \sum\_{t=1}^{T}
-                \mathbb{E}\_{q}
+                \log q(x_{0:1}\mid x_0)
+                - \log p_\theta(x_{0:1})
+            \Bigr] &= \mathcal{L}_{\text{DDPM}}
+        \\
+        = \mathrm{KL}\bigl(q(x_T \mid x_0)\|p_\theta(x_T)\bigr) + \sum_{t=1}^{T}
+                \mathbb{E}_{q}
                     \Bigl[
                     \mathrm{KL}\bigl(
-                        q(x\_{t-1} \mid x\_t,x\_0)\\|\_\theta(x\_{t-1}\mid x_t)
+                        q(x_{t-1} \mid x_t,x_0)\|_\theta(x_{t-1}\mid x_t)
                     \bigr)
                     \Bigr]
         \end{align}
@@ -65,33 +65,33 @@ Just thinking like what diffusion model do in pure image generation
 
     So we need to make the mask rate increase $m(t+dt)-m(t)$ during a small time period $dt$:
     \begin{align}
-        \alpha_t \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} = \text{maskrate}(t+dt) - \text{maskrate}(t) \\\
-        p_{mask} = \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} \\\
+        \alpha_t \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} = \text{maskrate}(t+dt) - \text{maskrate}(t) \\
+        p_{mask} = \frac{\text{maskrate}(t+dt) - \text{maskrate}(t)}{\alpha_t} \\
         q_{(t+dt)|t}(x_t^i \to [MASK]) = p_{mask} = \frac{-d\alpha_t}{\alpha_t} ,\quad  \text{if } x_t^i \neq [MASK]
     \end{align}
 
     Now, reformulate the KL divergence:
     \begin{align}
-        -\log p\_\theta(x\_0)
+        -\log p_\theta(x_0)
         \le
-        \mathbb{E}\_{q}\Bigl[\log q(x_{0:1} \mid x_0) - \log p\_\theta(x\_{0:1})\Bigr] 
-        = \int\_{0}^{1}
+        \mathbb{E}_{q}\Bigl[\log q(x_{0:1} \mid x_0) - \log p_\theta(x_{0:1})\Bigr] 
+        = \int_{0}^{1}
             \underbrace{
-            \mathbb{E}\_{q_{t \mid 0}(x\_t \mid x\_0)}
+            \mathbb{E}_{q_{t \mid 0}(x_t \mid x_0)}
             \Bigl[
-                \mathrm{KL}\bigl(q\_{t+dt \mid t}(\cdot\mid x_t)\\|p\_\theta(\cdot\mid x\_t)\bigr)
+                \mathrm{KL}\bigl(q_{t+dt \mid t}(\cdot\mid x_t)\|p_\theta(\cdot\mid x_t)\bigr)
             \Bigr]
             }
-        \\\
-        \text{where} \quad \mathrm{KL}\bigl(q\_{t+dt \mid t}(\cdot\mid x_t)\\|p\_\theta(\cdot\mid x\_t)\bigr) = \sum_{i:x_t^i \neq [\text{MASK}]}
-            q_{t+dt \mid t}(x_t^i \to [MASK])\bigl[ -\log p\_\theta(x_0^i \mid x_t) \bigr] \notag\\\
-            = \sum_{i:x_t^i \neq [\text{MASK}]} \bigl( \frac{-d\alpha_t}{\alpha_t} \bigr) \bigl[ -\log p\_\theta(x_0^i \mid x_t) \bigr] \notag\\\
-            = -\frac{d\alpha_t}{\alpha_t} \sum_{i:x_t^i \neq [\text{MASK}]} \bigl[ -\log p\_\theta(x_0^i \mid x_t) \bigr]
+        \\
+        \text{where} \quad \mathrm{KL}\bigl(q_{t+dt \mid t}(\cdot\mid x_t)\|p_\theta(\cdot\mid x_t)\bigr) = \sum_{i:x_t^i \neq [\text{MASK}]}
+            q_{t+dt \mid t}(x_t^i \to [MASK])\bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr] \notag\\
+            = \sum_{i:x_t^i \neq [\text{MASK}]} \bigl( \frac{-d\alpha_t}{\alpha_t} \bigr) \bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr] \notag\\
+            = -\frac{d\alpha_t}{\alpha_t} \sum_{i:x_t^i \neq [\text{MASK}]} \bigl[ -\log p_\theta(x_0^i \mid x_t) \bigr]
     \end{align}
 
     This gives us our final objective, which connects back to Equation (3):
     \begin{equation}
-    \mathcal{L}\_{\text{MDM}} \le \int_0^1 \frac{-d\alpha_t}{\alpha_t} \mathbb{E}{q\_{t|0}(x_t | x_0)} \left[ \sum_{i:x_t^i \neq [\text{MASK}]} [-\log p\_\theta(x_0^i|x_t)] \right]
+    \mathcal{L}_{\text{MDM}} \le \int_0^1 \frac{-d\alpha_t}{\alpha_t} \mathbb{E}{q_{t|0}(x_t | x_0)} \left[ \sum_{i:x_t^i \neq [\text{MASK}]} [-\log p_\theta(x_0^i|x_t)] \right]
     \end{equation}
 
 - Decoding Paradigm 1: ___Confidence-based Remasking___

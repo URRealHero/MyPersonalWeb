@@ -1,73 +1,54 @@
 {{/* layouts/_default/list.html */}}
 
-{{ define "body_class" }}
-  {{ if .IsHome }}home-page
-  {{ else if and (eq .Kind "section") (gt (len .Sections) 0) }}blog-category-list
-  {{ else }}blog-post-list
-  {{ end }}
-{{ end }}
+{{ define "body_class" }}blog-page{{ end }}
 
 {{ define "main" }}
-  <header class="page-header">
-    <h1>{{ .Title }}</h1>
-  </header>
+  {{ $isBlogRoot := and (eq .Kind "section") (eq .Section "blog") .Parent.IsHome }}
 
-  {{ $isTopLevelBlogWithSubsections := and (eq .Section "blog") (eq .Kind "section") (gt (len .Sections) 0) }}
+  {{ if $isBlogRoot }}
+    {{/* --- Blog home: intro, topics, then every post across topics --- */}}
+    <header class="blog-hero">
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.summary }}<p class="blog-hero-summary">{{ . }}</p>{{ end }}
+    </header>
 
-  {{ if $isTopLevelBlogWithSubsections }}
-    {{/* --- Displaying list of CATEGORIES (sub-sections) --- */}}
-    <div class="category-listing">
-      <div class="featured-blogs-grid">
-        {{ range .Sections.ByTitle }} 
-          {{ $section := . }} {{/* Assign the current section page object to $section */}}
-          <article class="blog-card category-card">
-            {{ with $section.Params.image }} {{/* Use $section.Params.image */}}
-              <a href="{{ $section.Permalink }}" class="blog-card-image-link"> {{/* Use $section.Permalink */}}
-                <img src="{{ . | relURL }}" alt="Thumbnail for {{ $section.Title }}" class="blog-card-image"> {{/* . is the image path, $section.Title for alt */}}
-              </a>
+    <section class="blog-topics" aria-label="Topics">
+      <h2 class="blog-section-heading">Topics</h2>
+      <div class="topic-grid">
+        {{ range .Sections.ByTitle }}
+          {{ $section := . }}
+          {{ if $section.RegularPages }}
+          <a class="topic-card" href="{{ $section.RelPermalink }}">
+            {{ with $section.Params.image }}
+              <img src="{{ . | relURL }}" alt="" class="topic-card-image" loading="lazy">
             {{ end }}
-            <div class="blog-card-content">
-              <h2 class="blog-card-title"><a href="{{ $section.Permalink }}">{{ $section.Title }}</a></h2>
-              {{ with $section.Params.summary }}
-                <p class="blog-card-summary">{{ . }}</p>
-              {{ else }}
-                <p class="blog-card-summary">{{ len $section.Pages }} post{{ if ne (len $section.Pages) 1 }}s{{ end }}</p>
-              {{ end }}
-            </div>
-            <a href="{{ $section.Permalink }}" class="card-link-overlay" aria-label="View posts in {{ $section.Title }}"></a>
-          </article>
+            <span class="topic-card-body">
+              <span class="topic-card-title">{{ $section.Title }}</span>
+              <span class="topic-card-count">{{ len $section.RegularPages }} post{{ if ne (len $section.RegularPages) 1 }}s{{ end }}</span>
+            </span>
+          </a>
+          {{ end }}
         {{ end }}
       </div>
-    </div>
+    </section>
 
-  {{ else if or (eq .Kind "section") (eq .Kind "taxonomy") }}
-    {{/* --- Displaying list of POSTS --- */}}
-    <div class="featured-blogs-grid">
-      {{ $paginator := .Paginate .Pages.ByDate.Reverse }}
-      {{ range $paginator.Pages }}
-        {{ $currentPage := . }}
-        <article class="blog-card">
-          {{ with $currentPage.Params.image }}
-            <a href="{{ $currentPage.Permalink }}" class="blog-card-image-link">
-              <img src="{{ . | relURL }}" alt="Thumbnail for {{ $currentPage.Title }}" class="blog-card-image">
-            </a>
-          {{ end }}
-          <div class="blog-card-content">
-            <h2 class="blog-card-title"><a href="{{ $currentPage.Permalink }}">{{ $currentPage.Title }}</a></h2>
-            {{ if not $currentPage.Date.IsZero }}
-              <p class="blog-card-meta">
-                Posted: <time datetime="{{ $currentPage.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $currentPage.Date.Format "Jan 2, 2006" }}</time>
-              </p>
-            {{ end }}
-            <p class="blog-card-summary">{{ $currentPage.Summary }}</p>
-          </div>
-          <a href="{{ $currentPage.Permalink }}" class="card-link-overlay" aria-label="Read more about {{ $currentPage.Title }}"></a>
-        </article>
-      {{ end }}
-    </div>
-    {{ partial "pagination.html" . }}
+    <section class="blog-recent" aria-label="All posts">
+      <h2 class="blog-section-heading">All posts</h2>
+      {{ partial "post-list.html" .RegularPagesRecursive.ByDate.Reverse }}
+    </section>
+
   {{ else }}
-    <p>No items to display on this page.</p>
+    {{/* --- One topic: banner, summary, then its posts --- */}}
+    <nav class="breadcrumb"><a href="{{ "/blog/" | relURL }}">Blog</a></nav>
+    <header class="blog-hero topic-hero">
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.summary }}<p class="blog-hero-summary">{{ . }}</p>{{ end }}
+    </header>
+    {{ with .Content }}<div class="topic-intro single-post-content">{{ . }}</div>{{ end }}
+    {{ if .RegularPages }}
+      {{ partial "post-list.html" .RegularPages.ByDate.Reverse }}
+    {{ else }}
+      <p class="post-list-empty">No posts yet. Stay tuned.</p>
+    {{ end }}
   {{ end }}
-
 {{ end }}
