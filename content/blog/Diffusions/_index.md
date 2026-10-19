@@ -6,6 +6,8 @@ summary = "This is my Diffusion-series, including all my understanding of diffus
 image= "/images/blogs/DDPM_intro.png"
 +++
 
-This is an introduction of my future Diffusion-series blogs, stay tuned.
+My notes on diffusion models, from the basics to generating in a single step.
 
-A blog of fast sampling method DDIM is released.
+1. [DDIM](ddim/): making the DDPM sampler non-Markovian and deterministic, so it can skip steps.
+2. [Flow Matching](flowmatching/): diffusion as a velocity field along a chosen path; why straight training paths still give curved sampling paths.
+3. [One Step](consistencymodel/): consistency models, flow maps, MeanFlow, and distilling a many-step model into a one-step generator.
