@@ -1,6 +1,6 @@
 +++
 date = '2026-10-18T12:00:00-07:00'
-draft = false
+draft = true
 title = 'Making a Model Compute-Bound on TPU: A Stage-by-Stage Checklist'
 summary = 'What to measure and what to change, from launch to the attention kernel, so a JAX model spends its time on the matrix unit. Drawn from speeding up a 33B video diffusion transformer, a Qwen3.8 captioner, and a VGGT training run on TPU v6e.'
 tags = ["TPU", "JAX", "Pallas", "Performance", "MFU"]
