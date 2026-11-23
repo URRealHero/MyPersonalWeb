@@ -7,10 +7,7 @@ venue = 'CVPR Findings'
 selected = true
 highlight = false   # true gives this paper a yellow row
 authors = ['Shu Pu', 'Boya Zeng', 'Kaichen Zhou', 'Mengyu Wang', 'Zhuang Liu']
-hook = [
-  'Do current 3D shape generation models rely on memorization?',
-  'How do modality, data diversity, conditioning granularity, guidance, latent space design, and augmentations impact memorization?',
-]
+hook = 'An empirical study of memorization in 3D shape generation models.'
 bibtex = '''
 @misc{pu2025memorization3dshapegeneration,
       title={Memorization in 3D Shape Generation: An Empirical Study},

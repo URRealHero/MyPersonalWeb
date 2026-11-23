@@ -8,7 +8,7 @@ badge = 'Oral'
 selected = true
 highlight = false   # true gives this paper a yellow row
 authors = ['Shu Pu*', 'Yaochen Wang*', 'Dongping Chen', 'Yuhang Chen', 'Guohao Wang', 'Qi Qin', 'Zhongyi Zhang', 'Zhiyuan Zhang', 'Zetong Zhou', 'Shuang Gong', 'Yi Gui', 'Yao Wan', 'Philip S. Yu']
-hook = 'Can MLLMs serve as a unified judge for assessing the understanding and generation ability of any-to-any modality tasks?'
+hook = 'This paper extends MLLM-as-a-Judge across modalities to a unified manner by introducing two benchmarks, TaskAnything and JudgeAnything, to respectively evaluate the overall performance and judging capabilities of MLLMs across any-to-any modality tasks.'
 bibtex = '''
 @misc{pu2025judgeanythingmllmjudge,
       title={Judge Anything: MLLM as a Judge Across Any Modality},
