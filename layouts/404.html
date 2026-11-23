@@ -1,0 +1,11 @@
+{{ define "main" }}
+<header class="page-head"><h1>Page not found</h1></header>
+<div class="prose">
+  <p>This page doesn't exist. It may have moved when the site was rebuilt in November 2026.</p>
+  <p>
+    {{- $links := slice (printf `<a href="%s">Home</a>` site.Home.RelPermalink) }}
+    {{- range slice "/research" "/log" "/blog" }}{{ with site.GetPage . }}{{ if or .RegularPages (eq .Section "blog") }}{{ $links = $links | append (printf `<a href="%s">%s</a>` .RelPermalink .Title) }}{{ end }}{{ end }}{{ end }}
+    {{ delimit $links " &nbsp;/&nbsp; " | safeHTML }}
+  </p>
+</div>
+{{ end }}

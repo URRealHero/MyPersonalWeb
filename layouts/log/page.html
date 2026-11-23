@@ -1,0 +1,38 @@
+{{ define "body_class" }}log-page{{ end }}
+{{ define "main_class" }}post-grid{{ end }}
+{{ define "main" }}
+{{- $m := partial "log-meta.html" . }}
+{{ partial "toc.html" . }}
+<article class="post">
+  <header class="page-head">
+    <p class="post-meta">
+      {{ partial "status.html" $m.status }}
+      {{- with .Params.started }}<span>since {{ (time .).Format "Jan 2, 2006" }}</span>{{ end }}
+      {{- with $m.latest }}<span>last entry {{ .Format "Jan 2, 2006" }}</span>{{ end }}
+      <span>{{ $m.entries }} {{ cond (eq $m.entries 1) "entry" "entries" }}</span>
+    </p>
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.question }}<p class="question"><span class="q-mark" aria-hidden="true">Q.</span> {{ . | markdownify }}</p>{{ end }}
+    <p class="link-row">
+      {{- with .Params.repo }}<a href="{{ . }}">code</a>{{ end -}}
+      {{- with .Params.paper }}{{ with site.GetPage . }}{{ $t := .Params.short | default .Title }}{{ with .Params.links }}{{ with .paper }}<a href="{{ . }}">paper: {{ $t }}</a>{{ end }}{{ end }}{{ end }}{{ end -}}
+      {{- with .Params.data }}<a href="{{ . }}">data</a>{{ end -}}
+      {{- with .CurrentSection.OutputFormats.Get "rss" }}<a href="{{ .RelPermalink }}" title="RSS for the whole research log">rss</a>{{ end -}}
+    </p>
+    {{ with .Params.tags }}<ul class="tags">{{ range . }}<li><a href="{{ (site.GetPage (printf "/tags/%s" (urlize .))).RelPermalink }}">{{ . }}</a></li>{{ end }}</ul>{{ end }}
+  </header>
+
+  <div class="prose log-body">
+    {{ .Content }}
+  </div>
+
+  {{ partial "backlinks.html" . }}
+
+  {{- if or .NextInSection .PrevInSection }}
+  <nav class="pager" aria-label="Other threads">
+    {{ with .NextInSection }}<a href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ else }}<span></span>{{ end }}
+    {{ with .PrevInSection }}<a href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}
+  </nav>
+  {{- end }}
+</article>
+{{ end }}

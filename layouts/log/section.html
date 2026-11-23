@@ -1,0 +1,25 @@
+{{ define "main" }}
+<header class="page-head">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.summary }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+</header>
+{{ with .Content }}<div class="prose how-it-works">{{ . }}</div>{{ end }}
+
+{{- $pages := .Pages }}
+{{- if not $pages }}
+<p class="empty">No public threads yet. The first one is on its way.</p>
+{{- end }}
+
+{{- range $status := slice "active" "paused" "concluded" }}
+  {{- $group := slice }}
+  {{- range $pages }}{{ if eq (.Params.status | default "active") $status }}{{ $group = $group | append . }}{{ end }}{{ end }}
+  {{- with $group }}
+<section class="block">
+  <header class="sec-head"><h2>{{ $status }}</h2><span>{{ len . }}</span></header>
+  {{- range sort . "Lastmod" "desc" }}
+    {{ partial "log-card.html" . }}
+  {{- end }}
+</section>
+  {{- end }}
+{{- end }}
+{{ end }}

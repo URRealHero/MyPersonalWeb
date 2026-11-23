@@ -1,0 +1,27 @@
+{{- /*
+  ![alt](plot.png)                    → responsive image (page-bundle images are resized to WebP)
+  ![alt](plot.png "Caption text")     → numbered figure with caption (when the image is on its own line)
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $src := .Destination -}}
+{{- $w := 0 }}{{ $h := 0 -}}
+{{- if not $u.IsAbs -}}
+  {{- $p := strings.TrimPrefix "./" $u.Path -}}
+  {{- with or (.PageInner.Resources.Get $p) (resources.Get $p) -}}
+    {{- if and (eq .MediaType.MainType "image") (ne .MediaType.SubType "svg") (ne .MediaType.SubType "gif") -}}
+      {{- $img := . -}}
+      {{- if gt .Width 1600 }}{{ $img = .Resize "1600x webp" }}{{ else }}{{ $img = .Process "webp" }}{{ end -}}
+      {{- $src = $img.RelPermalink }}{{ $w = $img.Width }}{{ $h = $img.Height -}}
+    {{- else -}}
+      {{- $src = .RelPermalink -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $src = strings.TrimPrefix "/" $p | relURL -}}
+  {{- end -}}
+{{- end -}}
+{{- $img := printf `<img src="%s" alt="%s"%s loading="lazy" decoding="async">` $src (.PlainText | htmlEscape) (cond (gt $w 0) (printf ` width="%d" height="%d"` $w $h) "") -}}
+{{- if and .IsBlock .Title -}}
+<figure class="fig">{{ $img | safeHTML }}<figcaption>{{ .Title | markdownify }}</figcaption></figure>
+{{- else -}}
+{{ $img | safeHTML }}
+{{- end -}}

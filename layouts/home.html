@@ -1,0 +1,95 @@
+{{ define "body_class" }}home{{ end }}
+{{ define "main_class" }}page{{ end }}
+{{ define "main" }}
+<header class="bio">
+  <div class="bio-text">
+    <h1 class="name">{{ site.Params.author }}</h1>
+    {{ .Content }}
+    <p class="bio-links">
+      {{- $links := slice
+        (printf `<a href="mailto:%s">Email</a>` site.Params.email)
+        (printf `<a href="%s">CV</a>` (site.Params.cv | relURL))
+        (printf `<a href="%s">Scholar</a>` site.Params.scholar)
+        (printf `<a href="%s">GitHub</a>` site.Params.github) }}
+      {{- with site.GetPage "/blog" }}{{ $links = $links | append (printf `<a href="%s">Blog</a>` .RelPermalink) }}{{ end }}
+      {{- /* The research log joins the links once it has a published thread. */}}
+      {{- with site.GetPage "/log" }}{{ if .RegularPages }}{{ $links = $links | append (printf `<a href="%s">%s</a>` .RelPermalink .Title) }}{{ end }}{{ end }}
+      {{ delimit $links " &nbsp;/&nbsp; " | safeHTML }}
+    </p>
+  </div>
+  <div class="bio-photo">
+    {{- with resources.Get "images/portrait.jpeg" }}
+      {{- $p := .Resize "600x webp" }}
+    <img src="{{ $p.RelPermalink }}" width="{{ div $p.Width 2 }}" height="{{ div $p.Height 2 }}" alt="{{ site.Params.author }}">
+    {{- end }}
+  </div>
+</header>
+
+{{- /* Now: data/now.yaml. Lines starting with "TODO" show (highlighted) in `hugo server` but never in a production build. */ -}}
+{{- $now := hugo.Data.now }}
+{{- with $now }}
+  {{- $items := slice }}
+  {{- range .items }}
+    {{- if or (not hugo.IsProduction) (not (strings.HasPrefix . "TODO")) }}{{ $items = $items | append . }}{{ end }}
+  {{- end }}
+  {{- with $items }}
+<section class="section-header" id="now">
+  <h2>Now</h2>
+  <ul class="now-list">
+    {{- range . }}
+    <li{{ if strings.HasPrefix . "TODO" }} class="todo"{{ end }}>{{ . | markdownify }}</li>
+    {{- end }}
+  </ul>
+</section>
+  {{- end }}
+{{- end }}
+
+{{- $research := site.GetPage "/research" }}
+{{- $all := $research.RegularPages }}
+{{- $papers := where $all "Params.selected" true }}
+{{- with $papers }}
+<section class="section-header" id="research">
+  <h2>Research</h2>
+  {{ $research.Content }}
+  {{- if where $papers "Params.highlight" true }}
+  <p>Some papers are <span class="highlight">highlighted</span>.</p>
+  {{- end }}
+</section>
+<section class="papers">
+  {{- range .ByDate.Reverse }}
+    {{ partial "paper-row.html" . }}
+  {{- end }}
+</section>
+  {{- if lt (len $papers) (len $all) }}
+<p class="section-more"><a href="{{ $research.RelPermalink }}">All papers</a></p>
+  {{- end }}
+{{- end }}
+
+{{- $threads := where (where site.RegularPages "Section" "log") "Params.status" "ne" "concluded" }}
+{{- with $threads }}
+<section class="section-header" id="log">
+  <h2>Research Log</h2>
+  {{- range first 4 .ByLastmod.Reverse }}
+    {{ partial "log-card.html" . }}
+  {{- end }}
+  <p class="section-more"><a href="{{ (site.GetPage "/log").RelPermalink }}">All threads</a></p>
+</section>
+{{- end }}
+
+{{- $posts := where site.RegularPages "Section" "blog" }}
+<section class="section-header" id="blog">
+  <h2>Blog</h2>
+  {{- with $posts }}
+  <div class="post-list">
+  {{- range first 5 .ByDate.Reverse }}
+    {{ partial "post-row.html" . }}
+  {{- end }}
+  </div>
+    {{- if gt (len $posts) 5 }}
+  <p><a href="{{ (site.GetPage "/blog").RelPermalink }}">All posts</a></p>
+    {{- end }}
+  {{- else }}
+  <p>No posts yet.</p>
+  {{- end }}
+</section>
+{{ end }}

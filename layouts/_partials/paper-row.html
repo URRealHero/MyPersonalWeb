@@ -1,0 +1,32 @@
+{{- /*
+  One paper, in Jon Barron's homepage format: 160px thumbnail (swaps to `teaser_video` on hover),
+  bold title linking to the publication, authors, italic venue, links, then the question / intro.
+  `highlight = true` gives the row a yellow background. Context: research page.
+*/ -}}
+{{- $url := "" }}{{ with .Params.links }}{{ $url = .paper | default "" }}{{ end }}
+<article class="paper{{ if .Params.highlight }} highlighted{{ end }}">
+  <div class="paper-media">
+    <div class="one">
+      {{- with .Params.teaser_video }}
+      <div class="two"><video muted loop playsinline preload="none"><source src="{{ . }}" type="video/mp4"></video></div>
+      {{- end }}
+      {{- with .Resources.GetMatch "teaser.*" }}
+        {{- $t := .Resize "320x webp" }}
+      <img src="{{ $t.RelPermalink }}" width="160" height="{{ math.Round (div (mul 160.0 $t.Height) $t.Width) }}" alt="{{ $.Title }}" loading="lazy" decoding="async">
+      {{- end }}
+    </div>
+  </div>
+  <div class="paper-info">
+    {{ if $url }}<a href="{{ $url }}" class="papertitle">{{ .Title }}</a>{{ else }}<span class="papertitle">{{ .Title }}</span>{{ end }}
+    {{ partial "authors.html" . }}
+    <div class="paper-venue"><span class="venue-tag">{{ .Params.venue }} {{ .Params.year }}</span>{{ with .Params.badge }}<span class="venue-tag is-award">{{ . }}</span>{{ end }}</div>
+    {{ partial "paper-links.html" . }}
+    {{- with .Params.hook }}
+      {{- if reflect.IsSlice . }}
+    <p class="paper-desc">{{ range $i, $q := . }}{{ if $i }}<br>{{ end }}Q{{ add $i 1 }}: {{ $q | markdownify }}{{ end }}</p>
+      {{- else }}
+    <p class="paper-desc">{{ . | markdownify }}</p>
+      {{- end }}
+    {{- end }}
+  </div>
+</article>

@@ -1,4 +1,4 @@
 +++
-title = "Blog"
-summary = "Notes on generative models, geometry, and making models run fast on accelerators."
+title = 'Blog'
+summary = 'Notes, explainers, and handbooks: things worth writing down properly. Posts marked *evolving* are still being thought through.'
 +++

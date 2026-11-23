@@ -1,0 +1,63 @@
+{{ define "body_class" }}blog-page{{ end }}
+{{ define "main_class" }}post-grid{{ end }}
+{{ define "main" }}
+{{ partial "toc.html" . }}
+<article class="post">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.summary }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+    <p class="post-meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+      {{- if gt (.Lastmod.Sub .Date).Hours 24.0 }}<span>updated <time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "Jan 2, 2006" }}</time></span>{{ end }}
+      <span>{{ .ReadingTime }} min read</span>
+      {{- with .Params.kind }}<span>{{ . }}</span>{{ end }}
+      {{- with .Params.status }}{{ partial "status.html" . }}{{ end }}
+    </p>
+    {{ with .Params.tags }}<ul class="tags">{{ range . }}<li><a href="{{ (site.GetPage (printf "/tags/%s" (urlize .))).RelPermalink }}">{{ . }}</a></li>{{ end }}</ul>{{ end }}
+  </header>
+
+  {{- /* Series box: every post sharing this post's `series`, oldest first. */ -}}
+  {{- with .Params.series }}
+    {{- $series := where (where site.RegularPages "Section" "blog") "Params.series" . }}
+    {{- if gt (len $series) 1 }}
+  <nav class="series" aria-label="Series">
+    <p class="mini-head">Series · {{ . }}</p>
+    <ol>
+      {{- range $series.ByDate }}
+      <li>{{ if eq .Path $.Path }}<span aria-current="page">{{ .Title }}</span>{{ else }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</li>
+      {{- end }}
+    </ol>
+  </nav>
+    {{- end }}
+  {{- end }}
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  <details class="cite-post">
+    <summary>cite this post</summary>
+    {{- $key := printf "pu%d%s" .Date.Year (index (split .File.ContentBaseName "-") 0 | replaceRE `[^a-zA-Z0-9]` "") }}
+    <div class="bib" id="cite-post">
+      <pre><code>@misc{ {{- $key -}},
+  author       = {Shu Pu},
+  title        = { {{- .Title -}} },
+  year         = { {{- .Date.Year -}} },
+  month        = { {{- .Date.Format "Jan" | lower -}} },
+  howpublished = {\url{ {{- .Permalink -}} }},
+  note         = {Blog post}
+}</code></pre>
+      <button type="button" class="copy-btn" data-copy-target="#cite-post code">Copy</button>
+    </div>
+  </details>
+
+  {{ partial "backlinks.html" . }}
+
+  {{- if or .NextInSection .PrevInSection }}
+  <nav class="pager" aria-label="More posts">
+    {{ with .NextInSection }}<a href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ else }}<span></span>{{ end }}
+    {{ with .PrevInSection }}<a href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}
+  </nav>
+  {{- end }}
+</article>
+{{ end }}

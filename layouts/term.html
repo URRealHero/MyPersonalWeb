@@ -1,0 +1,13 @@
+{{ define "main" }}
+<header class="page-head"><h1>{{ .Title }}</h1></header>
+{{- range .Pages.GroupBy "Section" }}
+<section class="block">
+  <header class="sec-head"><h2>{{ .Key }}</h2><span>{{ len .Pages }}</span></header>
+  {{- range .Pages.ByDate.Reverse }}
+    {{- if eq .Section "research" }}{{ partial "paper-row.html" . }}
+    {{- else if eq .Section "log" }}{{ partial "log-card.html" . }}
+    {{- else }}<div class="post-list">{{ partial "post-row.html" . }}</div>{{ end }}
+  {{- end }}
+</section>
+{{- end }}
+{{ end }}

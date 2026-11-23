@@ -1,0 +1,12 @@
+{{- /*
+  Facts about a log thread, derived from its content so nothing is maintained by hand.
+  Dated entries are "## YYYY-MM-DD · title" headings; render-heading.html marks them with data-date.
+  Returns: dict entries (int), latest (time or nil), status (string).
+*/ -}}
+{{- $dates := slice -}}
+{{- range findRESubmatch `<h2 class="entry"[^>]*data-date="(\d{4}-\d{2}-\d{2})"` .Content -}}
+  {{- $dates = $dates | append (index . 1) -}}
+{{- end -}}
+{{- $latest := "" -}}
+{{- with $dates }}{{ $latest = time (index (sort . "value" "desc") 0) }}{{ end -}}
+{{- return dict "entries" (len $dates) "latest" $latest "status" (.Params.status | default "active") -}}

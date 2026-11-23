@@ -1,0 +1,6 @@
+<footer class="site-footer">
+  <p>
+    {{- range slice "/log" "/blog" }}{{ with site.GetPage . }}{{ $sec := . }}{{ if .RegularPages }}{{ with .OutputFormats.Get "rss" }}<a href="{{ .RelPermalink }}">{{ $sec.Title }} RSS</a> &nbsp;/&nbsp; {{ end }}{{ end }}{{ end }}{{ end -}}
+    Design from Jon Barron's <a href="https://github.com/jonbarron/jonbarron.github.io">website</a>.
+  </p>
+</footer>

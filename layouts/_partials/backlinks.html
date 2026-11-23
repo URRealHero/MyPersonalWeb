@@ -1,0 +1,26 @@
+{{- /*
+  "Linked from": every other page whose source links to this page by its site path
+  (e.g. /log/my-thread/ or /blog/my-post).
+  Context: page.
+*/ -}}
+{{- $self := . -}}
+{{- $needle := .Path -}}
+{{- $re := printf `%s(/|#|\)|"|'|\s|$)` $needle -}}
+{{- $refs := slice -}}
+{{- range site.RegularPages -}}
+  {{- if ne .Path $self.Path -}}
+    {{- if findRE $re .RawContent 1 -}}
+      {{- $refs = $refs | append . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- with $refs }}
+<section class="backlinks" aria-label="Linked from">
+  <h2 class="mini-head">Linked from</h2>
+  <ul>
+    {{- range sort . "Date" "desc" }}
+    <li><span class="backlink-kind">{{ .Section }}</span> <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+    {{- end }}
+  </ul>
+</section>
+{{- end }}

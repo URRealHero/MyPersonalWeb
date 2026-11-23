@@ -1,0 +1,10 @@
+{{- /* A blog post in a list. Context: blog page. */ -}}
+<article class="post-row">
+  <a class="post-row-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+  <div class="post-row-meta">
+    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+    {{- with .Params.kind }} / {{ . }}{{ end }}
+    {{- if eq .Params.status "evolving" }} / {{ partial "status.html" "evolving" }}{{ end }}
+  </div>
+  {{ with .Params.summary }}<p class="post-row-summary">{{ . | markdownify }}</p>{{ end }}
+</article>

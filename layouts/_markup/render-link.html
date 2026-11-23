@@ -1,0 +1,33 @@
+{{- /*
+  Internal links resolve to real pages, so write them as site paths: [x](/log/my-thread/),
+  or relative to the bundle: [plot](loss.png). Unresolvable page links warn at build time.
+  A link to a paper ([x](/research/judge-anything/)) goes to its publication.
+*/ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $href := .Destination -}}
+{{- if strings.HasPrefix .Destination "#" -}}
+  {{- $href = .Destination -}}
+{{- else if and .Destination (not $u.IsAbs) (not (strings.HasPrefix .Destination "mailto:")) -}}
+  {{- $p := strings.TrimPrefix "./" $u.Path -}}
+  {{- $found := or (.PageInner.GetPage (strings.TrimSuffix "/" $p)) (.PageInner.Resources.Get $p) -}}
+  {{- with $found -}}
+    {{- $href = .RelPermalink -}}
+    {{- if and (not $href) (eq .ResourceType "page") -}}
+      {{- /* papers have no page of their own: link to the publication */ -}}
+      {{- with .Params.links }}{{ $href = .paper | default "" }}{{ end -}}
+      {{- if not $href }}{{ warnf "%s: %q has no page and no links.paper" $.PageInner.String $.Destination }}{{ end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- if path.Ext $p -}}
+      {{- /* a static file such as /data/Shu_Pu_CV.pdf */ -}}
+      {{- $href = strings.TrimPrefix "/" $p | relURL -}}
+    {{- else -}}
+      {{- warnf "%s: broken internal link %q" .PageInner.String .Destination -}}
+      {{- $href = strings.TrimPrefix "/" $p | relURL -}}
+    {{- end -}}
+  {{- end -}}
+  {{- with $u.RawQuery }}{{ $href = printf "%s?%s" $href . }}{{ end -}}
+  {{- with $u.Fragment }}{{ $href = printf "%s#%s" $href . }}{{ end -}}
+{{- end -}}
+<a href="{{ $href }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if $u.IsAbs }} class="ext"{{ end }}>{{ .Text | safeHTML }}</a>
+{{- /* trim the trailing newline so no space appears before punctuation */ -}}

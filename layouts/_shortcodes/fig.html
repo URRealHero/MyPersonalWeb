@@ -1,0 +1,37 @@
+{{- /*
+  {{< fig src="loss.png" caption="Loss vs. steps." >}}
+  {{< fig src="samples.mp4" caption="Samples over training." wide=true >}}
+  {{< fig src="a.png,b.png" caption="Left: baseline. Right: ours." >}}   (side by side)
+  Options: alt, width (e.g. "70%"), wide (break out of the text column).
+*/ -}}
+{{- $srcs := split (.Get "src") "," -}}
+{{- $caption := .Get "caption" -}}
+{{- $alt := .Get "alt" | default (plainify $caption) -}}
+{{- $class := slice "fig" -}}
+{{- if .Get "wide" }}{{ $class = $class | append "fig-wide" }}{{ end -}}
+{{- if gt (len $srcs) 1 }}{{ $class = $class | append "fig-grid" }}{{ end -}}
+<figure class="{{ delimit $class " " }}"{{ with .Get "width" }} style="--fig-w: {{ . }}"{{ end }}>
+  <div class="fig-media">
+  {{- range $srcs -}}
+    {{- $s := strings.TrimSpace . -}}
+    {{- $r := or ($.Page.Resources.Get $s) (resources.Get $s) -}}
+    {{- $url := strings.TrimPrefix "/" $s | relURL -}}
+    {{- $raster := false -}}
+    {{- with $r }}
+      {{- $url = .RelPermalink -}}
+      {{- $raster = and (eq .MediaType.MainType "image") (not (in (slice "svg" "gif") .MediaType.SubType)) -}}
+    {{- end -}}
+    {{- $ext := path.Ext $s | lower -}}
+    {{- if in (slice ".mp4" ".webm" ".mov") $ext }}
+    <video src="{{ $url }}" autoplay loop muted playsinline controls preload="metadata" aria-label="{{ $alt }}"></video>
+    {{- else if $raster }}
+      {{- $img := $r }}
+      {{- if gt $r.Width 1600 }}{{ $img = $r.Resize "1600x webp" }}{{ else }}{{ $img = $r.Process "webp" }}{{ end }}
+    <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+    {{- else }}
+    <img src="{{ $url }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+    {{- end -}}
+  {{- end }}
+  </div>
+  {{- with $caption }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+</figure>

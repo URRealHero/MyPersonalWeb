@@ -1,0 +1,21 @@
+{{- /*
+  Slash-separated links for a paper: paper / code / project / data / video / slides / bibtex.
+  "bibtex" opens an inline block with a copy button. Context: research page.
+*/ -}}
+{{- $p := . -}}
+{{- $id := printf "bib-%s" $p.File.ContentBaseName -}}
+{{- $bib := strings.TrimSpace ($p.Params.bibtex | default "") -}}
+{{- $links := slice -}}
+{{- with $p.Params.links -}}
+  {{- range $k := slice "paper" "code" "project" "data" "video" "slides" -}}
+    {{- with index $p.Params.links $k }}{{ $links = $links | append (printf `<a href="%s">%s</a>` . $k) }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- with $bib }}{{ $links = $links | append (printf `<button type="button" class="bib-toggle" aria-expanded="false" aria-controls="%s">bibtex</button>` $id) }}{{ end -}}
+<div class="paper-links">{{ delimit $links " / " | safeHTML }}</div>
+{{- with $bib }}
+<div class="bib" id="{{ $id }}" hidden>
+  <pre><code>{{ . }}</code></pre>
+  <button type="button" class="copy-btn" data-copy-target="#{{ $id }} code">Copy</button>
+</div>
+{{- end }}

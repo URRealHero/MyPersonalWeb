@@ -1,0 +1,11 @@
+{{- /* Table of contents: sticky in the left margin on wide screens, collapsible inline on narrow ones. */ -}}
+{{- if strings.Contains .TableOfContents "<li>" }}
+<details class="toc toc-inline">
+  <summary>contents</summary>
+  {{ replace .TableOfContents `id="TableOfContents"` "" | safeHTML }}
+</details>
+<aside class="toc toc-side" aria-label="Contents">
+  <p class="mini-head">Contents</p>
+  {{ .TableOfContents }}
+</aside>
+{{- end }}

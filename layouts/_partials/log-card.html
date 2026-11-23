@@ -1,0 +1,13 @@
+{{- /* A research-log thread in a list. Context: log page. */ -}}
+{{- $m := partial "log-meta.html" . -}}
+<article class="log-card">
+  <a class="log-card-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+  {{ with .Params.question }}<div class="log-card-question">{{ . | markdownify }}</div>{{ end }}
+  <div class="log-card-meta">
+    {{- $bits := slice (partial "status.html" $m.status) }}
+    {{- with .Params.started }}{{ $bits = $bits | append (printf "since %s" ((time .).Format "Jan 2006")) }}{{ end }}
+    {{- with $m.latest }}{{ $bits = $bits | append (printf "last entry %s" (.Format "Jan 2, 2006")) }}{{ end }}
+    {{- $bits = $bits | append (printf "%d %s" $m.entries (cond (eq $m.entries 1) "entry" "entries")) }}
+    {{ delimit $bits " / " | safeHTML }}
+  </div>
+</article>

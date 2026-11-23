@@ -1,0 +1,12 @@
+{{- /*
+  {{< callout hypothesis >}} … {{< /callout >}}
+  {{< callout type="result" title="EMA helps at 1-NFE" >}} … {{< /callout >}}
+  Types: state (current state of a log thread), hypothesis, result, question, todo, takeaway, note, caveat
+*/ -}}
+{{- $type := .Get "type" | default (.Get 0) | default "note" | lower -}}
+{{- $labels := dict "state" "Current state" "hypothesis" "Hypothesis" "result" "Result" "question" "Open question" "todo" "Next" "takeaway" "Takeaway" "note" "Note" "caveat" "Caveat" -}}
+{{- $label := index $labels $type | default (title $type) -}}
+<aside class="callout callout-{{ $type }}">
+  <p class="callout-label">{{ $label }}{{ with .Get "title" }}<span class="callout-title"> · {{ . | markdownify }}</span>{{ end }}</p>
+  <div class="callout-body">{{ .Inner | strings.TrimSpace | .Page.RenderString (dict "display" "block") }}</div>
+</aside>

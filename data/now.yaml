@@ -1,0 +1,10 @@
+# The "Now" block on the homepage. It stays hidden until you add a line.
+# One short line per item; Markdown links work. For example:
+#
+#   items:
+#     - "Working on 4D representations of geometry and motion"
+#     - "Reading [some paper](https://arxiv.org/abs/...)"
+#
+# Change `updated` whenever you edit the list.
+updated: 2026-11-20
+items: []

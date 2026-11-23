@@ -28,11 +28,11 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: 'latest' # Or specify your Hugo version
-          # extended: true # Uncomment if your theme/SCSS needs Hugo Extended version
+          hugo-version: '0.170.1' # pinned: match the version you build with locally
+          extended: true          # needed for WebP image processing
 
       - name: Build Hugo site
-        run: hugo --minify # Output goes to ./public
+        run: hugo --gc --minify # Output goes to ./public; drafts are never built
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3

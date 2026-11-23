@@ -1,0 +1,33 @@
+{{ define "main" }}
+<header class="page-head">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.summary }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+</header>
+{{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+
+{{- if not .Pages }}
+<p class="empty">No posts yet.</p>
+{{- end }}
+
+{{- range .Pages.GroupByDate "2006" }}
+<section class="block">
+  <header class="sec-head"><h2>{{ .Key }}</h2></header>
+  <div class="post-list">
+  {{- range .Pages }}
+    {{ partial "post-row.html" . }}
+  {{- end }}
+  </div>
+</section>
+{{- end }}
+
+{{- with .Pages }}
+  {{- $tags := slice }}
+  {{- range . }}{{ range .Params.tags }}{{ $tags = $tags | append . }}{{ end }}{{ end }}
+  {{- with $tags | uniq | sort }}
+<section class="block">
+  <header class="sec-head"><h2>Tags</h2></header>
+  <ul class="tags">{{ range . }}<li><a href="{{ (site.GetPage (printf "/tags/%s" (urlize .))).RelPermalink }}">{{ . }}</a></li>{{ end }}</ul>
+</section>
+  {{- end }}
+{{- end }}
+{{ end }}

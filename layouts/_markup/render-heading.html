@@ -1,0 +1,12 @@
+{{- /*
+  Headings get a hover anchor. A level-2 heading that starts with a date,
+  e.g. "## 2026-11-20 · tried EMA", becomes a research-log entry on the timeline.
+*/ -}}
+{{- $date := index (findRESubmatch `^\s*(\d{4}-\d{2}-\d{2})\b` .PlainText 1) 0 -}}
+{{- if and $date (eq .Level 2) -}}
+  {{- $d := index $date 1 -}}
+  {{- $rest := replaceRE `^\s*\d{4}-\d{2}-\d{2}\s*[·•:|—–-]?\s*` "" .Text -}}
+<h2 class="entry" id="{{ .Anchor }}" data-date="{{ $d }}"><time class="entry-date" datetime="{{ $d }}">{{ $d }}</time>{{ with $rest }} <span class="entry-title">{{ . | safeHTML }}</span>{{ end }} <a class="heading-anchor" href="#{{ .Anchor }}" aria-label="Link to this entry">#</a></h2>
+{{- else -}}
+<h{{ .Level }} id="{{ .Anchor }}"{{ range $k, $v := .Attributes }}{{ if ne $k "id" }} {{ $k }}="{{ $v }}"{{ end }}{{ end }}>{{ .Text | safeHTML }}{{ if ge .Level 2 }} <a class="heading-anchor" href="#{{ .Anchor }}" aria-label="Link to this section">#</a>{{ end }}</h{{ .Level }}>
+{{- end -}}

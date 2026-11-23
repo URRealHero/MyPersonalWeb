@@ -1,0 +1,9 @@
+{{- /* Author list. "*" suffix marks equal contribution; the site owner is bolded. Context: page. */ -}}
+{{- $me := site.Params.author -}}
+{{- $names := slice -}}
+{{- range .Params.authors -}}
+  {{- $eq := cond (strings.HasSuffix . "*") "*" "" -}}
+  {{- $name := strings.TrimSuffix "*" . -}}
+  {{- $names = $names | append (cond (eq $name $me) (printf "<strong>%s</strong>%s" $name $eq) (printf `<span class="author">%s%s</span>` $name $eq)) -}}
+{{- end -}}
+<div class="paper-authors">{{ delimit $names ", " | safeHTML }}</div>

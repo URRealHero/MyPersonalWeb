@@ -1,44 +1,88 @@
 baseURL = 'https://urrealhero.github.io/MyPersonalWeb/'
-canonifyURLs = true
-languageCode = 'en-us'
-title = 'Shu Pu Website'
-
-disableKinds = ['taxonomy', 'term']
+locale = 'en-US'
+title = 'Shu Pu'
+enableGitInfo = true      # "updated" dates come from git; CI checks out full history
+enableRobotsTXT = true
 
 [params]
-  math = true 
+  author = 'Shu Pu'
+  description = 'Shu Pu is a first-year Ph.D. student at UC Santa Cruz working on generative models, representation learning, and world models.'
+  email = 'pushuabc@gmail.com'
+  cv = 'data/Shu_Pu_CV.pdf'
+  scholar = 'https://scholar.google.com/citations?user=1tybQSwAAAAJ'
+  github = 'https://github.com/URRealHero'
+
+[menus]
+  [[menus.main]]
+    name = 'Research'
+    pageRef = '/research'
+    weight = 10
+  [[menus.main]]
+    name = 'Log'
+    pageRef = '/log'
+    weight = 20
+    [menus.main.params]
+      hide_when_empty = true   # stays out of the nav until the first thread is published
+  [[menus.main]]
+    name = 'Blog'
+    pageRef = '/blog'
+    weight = 30
+
+# Publish page-bundle files only when a page references them (keeps
+# original full-size images out of the site; resized WebP copies are used).
+[[cascade]]
+  [cascade.build]
+    publishResources = false
+
+[taxonomies]
+  tag = 'tags'
+
+[outputs]
+  home = ['html', 'rss']
+  section = ['html', 'rss']
+  taxonomy = ['html']
+  term = ['html']
+
+[frontmatter]
+  # An explicit `lastmod` in front matter wins; otherwise use the last git commit.
+  lastmod = ['lastmod', ':git', 'date']
 
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
-      unsafe = true  # Allows all raw HTML
-
+      unsafe = true   # allow raw HTML in posts
+    [markup.goldmark.parser]
+      wrapStandAloneImageWithinParagraph = false   # lets image hook emit <figure>
+      [markup.goldmark.parser.attribute]
+        block = true  # {.class} after a paragraph/table
     [markup.goldmark.extensions]
+      [markup.goldmark.extensions.footnote]
+        backlinkHTML = '↑'
       [markup.goldmark.extensions.passthrough]
         enable = true
+        # Math is passed through untouched and typeset by MathJax in the browser.
         [markup.goldmark.extensions.passthrough.delimiters]
-          # These blocks will be passed through Markdown untouched
           block = [
-            ['$$', '$$'],             # For $$...$$ display math (TOML single quotes are literal: one backslash)
-            ['\[', '\]'],           # For \[...\] display math
+            ['$$', '$$'],
+            ['\[', '\]'],
             ['\begin{equation}', '\end{equation}'],
             ['\begin{align}', '\end{align}'],
-            ['\begin{gather}', '\end{gather}']
+            ['\begin{gather}', '\end{gather}'],
           ]
-          # These inline blocks will be passed through
           inline = [
-            ['$', '$'],              # For $...$ inline math (use with caution due to $ in normal text)
-            ['\(', '\)']            # For \(...\) inline math (safer)
+            ['$', '$'],
+            ['\(', '\)'],
           ]
-
   [markup.highlight]
-    style = 'github'
-
-  [markup.tableOfContents] # This is a direct child of [markup], not [markup.goldmark]
+    noClasses = false   # colors come from CSS so they follow light/dark mode
+  [markup.tableOfContents]
     startLevel = 2
-    endLevel   = 4
-    ordered    = false
+    endLevel = 3
+    ordered = false
 
-[taxonomies]
-  category = "categories"
-  tag = "tags"
+[imaging]
+  resampleFilter = 'Lanczos'
+  [imaging.webp]
+    quality = 82
+  [imaging.jpeg]
+    quality = 85

@@ -1,0 +1,65 @@
+{{- /*
+  Before → after per row (e.g. baseline vs ours, understanding vs generation).
+
+  {{< dumbbell from="Baseline" to="Ours" max=100 unit="%" caption="…" >}}
+  FID      | 12.4 | 9.8
+  Recall   | 0.41 | 0.47
+  {{< /dumbbell >}}
+
+  One hue, two shades (colours validated on white). Values are direct-labelled,
+  every dot has a tooltip, and a table view sits underneath.
+*/ -}}
+{{- $max := float (.Get "max" | default 100) -}}
+{{- $unit := .Get "unit" | default "" -}}
+{{- $from := .Get "from" | default "before" -}}
+{{- $to := .Get "to" | default "after" -}}
+{{- $rows := slice -}}
+{{- range split (strings.TrimSpace .Inner) "\n" -}}
+  {{- $c := split . "|" -}}
+  {{- if eq (len $c) 3 -}}
+    {{- $rows = $rows | append (dict
+        "label" (strings.TrimSpace (index $c 0))
+        "a" (float (strings.TrimSpace (index $c 1)))
+        "b" (float (strings.TrimSpace (index $c 2)))) -}}
+  {{- end -}}
+{{- end -}}
+{{- $summary := slice -}}
+{{- range $rows }}{{ $summary = $summary | append (printf "%s: %v%s → %v%s" .label .a $unit .b $unit) }}{{ end -}}
+<figure class="fig dumbbell">
+  <p class="db-legend"><span><i class="db-key db-a"></i>{{ $from }}</span><span><i class="db-key db-b"></i>{{ $to }}</span></p>
+  <div class="db-plot" role="img" aria-label="{{ $from }} → {{ $to }}. {{ delimit $summary "; " }}">
+    {{- range $rows }}
+      {{- $pa := mul (div .a $max) 100.0 }}
+      {{- $pb := mul (div .b $max) 100.0 }}
+    <div class="db-row">
+      <div class="db-label">{{ .label }}</div>
+      <div class="db-track">
+        <span class="db-line" style="{{ printf "left: %.3f%%; width: %.3f%%" (math.Min $pa $pb) (math.Abs (sub $pa $pb)) | safeCSS }}"></span>
+        <span class="db-dot db-a" style="{{ printf "left: %.3f%%" $pa | safeCSS }}" title="{{ $from }} · {{ .label }}: {{ .a }}{{ $unit }}"><span class="db-val">{{ .a }}{{ $unit }}</span></span>
+        <span class="db-dot db-b" style="{{ printf "left: %.3f%%" $pb | safeCSS }}" title="{{ $to }} · {{ .label }}: {{ .b }}{{ $unit }}"><span class="db-val">{{ .b }}{{ $unit }}</span></span>
+      </div>
+    </div>
+    {{- end }}
+    <div class="db-row db-axis-row" aria-hidden="true">
+      <div></div>
+      <div class="db-axis">
+        {{- range seq 0 4 }}
+        {{- $v := mul (div (float .) 4.0) $max }}
+        <span style="{{ printf "left: %d%%" (mul . 25) | safeCSS }}">{{ if eq $v (math.Floor $v) }}{{ int $v }}{{ else }}{{ printf "%.1f" $v }}{{ end }}</span>
+        {{- end }}
+      </div>
+    </div>
+  </div>
+  {{- with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+  <details class="db-table">
+    <summary>table</summary>
+    <table>
+      <thead><tr><th></th><th>{{ $from }}</th><th>{{ $to }}</th><th>change</th></tr></thead>
+      <tbody>
+        {{- range $rows }}
+        <tr><td>{{ .label }}</td><td>{{ .a }}{{ $unit }}</td><td>{{ .b }}{{ $unit }}</td><td>{{ lang.FormatNumber 2 (sub .b .a) }}</td></tr>
+        {{- end }}
+      </tbody>
+    </table>
+  </details>
+</figure>

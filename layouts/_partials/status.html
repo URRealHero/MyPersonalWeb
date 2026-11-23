@@ -1,0 +1,3 @@
+{{- /* Status label. Context: a status string (active|paused|concluded|evolving|settled). */ -}}
+{{- $s := . | default "active" | lower -}}
+<span class="status status-{{ $s }}">{{ $s | strings.FirstUpper }}</span>

@@ -1,0 +1,12 @@
+{{ define "main_class" }}post-grid{{ end }}
+{{ define "main" }}
+{{ partial "toc.html" . }}
+<article class="post">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{ with .Params.summary }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+  </header>
+  <div class="prose">{{ .Content }}</div>
+  {{ partial "backlinks.html" . }}
+</article>
+{{ end }}

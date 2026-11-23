@@ -1,0 +1,10 @@
+{{ define "main" }}
+<header class="page-head">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.summary }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+</header>
+{{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+<div class="post-list">
+  {{- range .Pages }}{{ partial "post-row.html" . }}{{ end }}
+</div>
+{{ end }}

@@ -1,0 +1,15 @@
+{{- /* Inner pages only: name on the left, slash-separated links on the right (the homepage has none, like Barron's). */ -}}
+<header class="site-header">
+  <a class="site-name" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+  <nav class="site-nav" aria-label="Main">
+    {{- $links := slice }}
+    {{- range site.Menus.main }}
+      {{- /* Entries marked hide_when_empty (Log) stay out of the nav until their section has a published page. */}}
+      {{- if and .Params.hide_when_empty .Page (not .Page.RegularPages) }}{{ continue }}{{ end }}
+      {{- $active := or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}
+      {{- $links = $links | append (printf `<a href="%s"%s>%s</a>` .URL (cond $active ` aria-current="page"` "") .Name) }}
+    {{- end }}
+    {{- $links = $links | append (printf `<a href="%s">CV</a>` (site.Params.cv | relURL)) }}
+    {{ delimit $links " &nbsp;/&nbsp; " | safeHTML }}
+  </nav>
+</header>

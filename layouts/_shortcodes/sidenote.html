@@ -1,0 +1,7 @@
+{{- /*
+  Inline margin note: text{{< sidenote >}}An aside, *markdown ok*.{{< /sidenote >}} more text.
+  In the right margin on wide screens; a tap-to-open numbered note on narrow ones.
+*/ -}}
+{{- $id := printf "sn-%d" .Ordinal -}}
+<label for="{{ $id }}" class="sn-ref" aria-label="Show sidenote"></label><input type="checkbox" id="{{ $id }}" class="sn-toggle"><span class="sidenote">{{ .Inner | strings.TrimSpace | .Page.RenderString }}</span>
+{{- /* keep inline: no trailing newline */ -}}
